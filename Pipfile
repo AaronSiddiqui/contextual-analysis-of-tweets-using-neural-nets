@@ -10,6 +10,7 @@ tensorflow-gpu = "*"
 numpy = "*"
 pandas = "*"
 matplotlib = "*"
+tweepy = "*"
 
 [requires]
 python_version = "3.7"
