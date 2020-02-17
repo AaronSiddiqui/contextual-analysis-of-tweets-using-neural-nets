@@ -1,3 +1,4 @@
+# Access tokens and consumer keys for the tweepy API
 ACCESS_TOKEN = ""
 ACCESS_TOKEN_SECRET = ""
 CONSUMER_KEY = ""
