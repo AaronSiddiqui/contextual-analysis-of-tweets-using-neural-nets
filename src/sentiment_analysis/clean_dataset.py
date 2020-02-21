@@ -27,16 +27,27 @@ print("UTF-8 BOM Example:", df.text[226])
 
 # Cleans each of the tweets
 clean_df = df.drop(["length"], axis=1)
+
 for i in df.index:
     clean_df.at[i, "text"] = clean_tweet(clean_df.at[i, "text"])
 
 print()
 print("After cleaning...")
-print("URL Example:", df.text[0])
-print("@mention Example:", df.text[343])
-print("Hashtag Example:", df.text[175])
-print("HTML Encoding Example:", df.text[279])
-print("UTF-8 BOM Example:", df.text[226])
+print("URL Example:", clean_df.text[0])
+print("@mention Example:", clean_df.text[343])
+print("Hashtag Example:", clean_df.text[175])
+print("HTML Encoding Example:", clean_df.text[279])
+print("UTF-8 BOM Example:", clean_df.text[226])
+
+# Prints tweets that are null after the data is processed
+# e.g. A tweet that only had a url
+print()
+print(df[df.isnull().any(axis=1)].head())
+
+# Drop these tweets
+df.dropna(inplace=True)
+df.reset_index(drop=True, inplace=True)
+df.index.name = "id"
 
 # Writes the dataframe to a new file
 clean_df.to_csv(directory + "sentiment140_clean.csv")
