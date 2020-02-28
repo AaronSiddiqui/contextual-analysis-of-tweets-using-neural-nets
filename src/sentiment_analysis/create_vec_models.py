@@ -5,7 +5,6 @@ from src.nlp.word2vec import W2V
 from src.nlp.doc2vec import D2V
 
 df = pd.read_csv("../../datasets/sentiment140/sentiment140_clean.csv", index_col="id")
-df.text = df.text.astype(str)
 
 directory = "../../models/nlp/"
 
