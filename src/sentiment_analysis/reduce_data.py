@@ -14,6 +14,7 @@ neg_df = neg_df.head(50000)
 # Creates a dataframe that contains the first 50,000 positive tweets
 pos_df = df.loc[df["sentiment"] == 4]
 pos_df = pos_df.head(50000)
+pos_df.sentiment = 1
 
 # Concatenates to create a dataframe of 100,000 tweets, 50:50 positive, negative
 reduced_df = pd.concat([neg_df, pos_df])
