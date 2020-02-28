@@ -11,6 +11,11 @@ numpy = "*"
 pandas = "*"
 matplotlib = "*"
 tweepy = "*"
+gensim = "*"
+sklearn = "*"
+keras = "*"
+nltk = "*"
+tqdm = "*"
 
 [requires]
 python_version = "3.7"
