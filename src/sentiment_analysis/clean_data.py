@@ -42,12 +42,12 @@ print("UTF-8 BOM Example:", clean_df.text[226])
 # Prints tweets that are null after the data is processed
 # e.g. A tweet that only had a url
 print()
-print(df[df.isnull().any(axis=1)].head())
+print(clean_df[clean_df.isnull().any(axis=1)].head())
 
 # Drop these tweets
-df.dropna(inplace=True)
-df.reset_index(drop=True, inplace=True)
-df.index.name = "id"
+clean_df.dropna(inplace=True)
+clean_df.reset_index(drop=True, inplace=True)
+clean_df.index.name = "id"
 
 # Writes the dataframe to a new file
 clean_df.to_csv(directory + "sentiment140_clean.csv")
