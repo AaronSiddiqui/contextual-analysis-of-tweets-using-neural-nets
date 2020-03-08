@@ -9,11 +9,11 @@ df = pd.read_csv(directory + "sentiment140_original.csv", encoding="utf-8",
 
 # Creates a dataframe that contains the first 50,000 negative tweets
 neg_df = df.loc[df["sentiment"] == 0]
-neg_df = neg_df.head(50000)
+neg_df = neg_df.head(100000)
 
 # Creates a dataframe that contains the first 50,000 positive tweets
 pos_df = df.loc[df["sentiment"] == 4]
-pos_df = pos_df.head(50000)
+pos_df = pos_df.head(100000)
 pos_df.sentiment = 1
 
 # Concatenates to create a dataframe of 100,000 tweets, 50:50 positive, negative
