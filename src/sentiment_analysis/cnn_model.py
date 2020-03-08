@@ -5,7 +5,7 @@ from sklearn.model_selection import train_test_split
 from keras.preprocessing.text import Tokenizer
 from keras.preprocessing.sequence import pad_sequences
 from keras.models import Sequential
-from keras.layers import Dense, Dropout, Flatten
+from keras.layers import Dense, Dropout, Flatten, Conv1D, GlobalMaxPooling1D
 from keras.layers.embeddings import Embedding
 
 df = pd.read_csv("../../datasets/sentiment140/sentiment140_clean.csv", index_col="id")
@@ -39,10 +39,16 @@ x_validation, x_test, y_validation, y_test = \
                      test_size=0.5, random_state=SEED)
 
 max_len = 140
-num_words = 20000
+num_words = 50000
 
 tokenizer = Tokenizer(num_words=num_words)
 tokenizer.fit_on_texts(x_train)
+
+# print()
+# print(len(tokenizer.word_index.items()))
+#
+# print()
+# print(len(embeddings_index))
 
 sequences = tokenizer.texts_to_sequences(x_train)
 x_train_seq = pad_sequences(sequences, maxlen=max_len)
@@ -57,7 +63,7 @@ for s in sequences[:5]:
 sequences_val = tokenizer.texts_to_sequences(x_validation)
 x_val_seq = pad_sequences(sequences_val, maxlen=max_len)
 
-embedding_matrix = np.zeros((num_words, 200))
+embedding_matrix = np.zeros((num_words, 128))
 for word, i in tokenizer.word_index.items():
     if i >= num_words:
         continue
@@ -69,20 +75,42 @@ print()
 print(len(embedding_matrix))
 
 # model_ptw2v = Sequential()
-# e = Embedding(num_words, 200, input_length=max_len)
-# model_ptw2v.add(e)
+# model_ptw2v.add(Embedding(num_words, 128, input_length=max_len))
 # model_ptw2v.add(Flatten())
 # model_ptw2v.add(Dense(256, activation='relu'))
 # model_ptw2v.add(Dense(1, activation='sigmoid'))
 # model_ptw2v.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
-# model_ptw2v.fit(x_train_seq, y_train, validation_data=(x_val_seq, y_validation), epochs=5, batch_size=32, verbose=2)
+# model_ptw2v.fit(x_train_seq, y_train, validation_data=(x_val_seq, y_validation), epochs=5, batch_size=64, verbose=2)
+# model_ptw2v.save("../../models/neural_networks/emb_ann.h5")
+#
+# model_ptw2v = Sequential()
+# model_ptw2v.add(Embedding(num_words, 128, weights=[embedding_matrix], input_length=max_len, trainable=True))
+# model_ptw2v.add(Flatten())
+# model_ptw2v.add(Dense(256, activation='relu'))
+# model_ptw2v.add(Dense(1, activation='sigmoid'))
+# model_ptw2v.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
+# model_ptw2v.fit(x_train_seq, y_train, validation_data=(x_val_seq, y_validation), epochs=5, batch_size=64, verbose=2)
+# model_ptw2v.save("../../models/neural_networks/w2v_ann.h5")
 
-model_ptw2v = Sequential()
-e = Embedding(num_words, 200, weights=[embedding_matrix], input_length=max_len, trainable=True)
-model_ptw2v.add(e)
-model_ptw2v.add(Flatten())
-model_ptw2v.add(Dense(256, activation='relu'))
-model_ptw2v.add(Dense(1, activation='sigmoid'))
-model_ptw2v.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
-model_ptw2v.fit(x_train_seq, y_train, validation_data=(x_val_seq, y_validation), epochs=5, batch_size=32, verbose=2)
+
+
+model_cnn = Sequential()
+model_cnn.add(Embedding(num_words, 128, input_length=max_len))
+model_cnn.add(Conv1D(filters=100, kernel_size=4, padding='valid', activation='relu', strides=1))
+model_cnn.add(GlobalMaxPooling1D())
+model_cnn.add(Dense(256, activation='relu'))
+model_cnn.add(Dense(1, activation='sigmoid'))
+model_cnn.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
+model_cnn.fit(x_train_seq, y_train, validation_data=(x_val_seq, y_validation), epochs=5, batch_size=64, verbose=2)
+model_cnn.save("../../models/neural_networks/emb_cnn.h5")
+
+model_cnn = Sequential()
+model_cnn.add(Embedding(num_words, 128, weights=[embedding_matrix], input_length=max_len, trainable=True))
+model_cnn.add(Conv1D(filters=100, kernel_size=4, padding='valid', activation='relu', strides=1))
+model_cnn.add(GlobalMaxPooling1D())
+model_cnn.add(Dense(256, activation='relu'))
+model_cnn.add(Dense(1, activation='sigmoid'))
+model_cnn.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
+model_cnn.fit(x_train_seq, y_train, validation_data=(x_val_seq, y_validation), epochs=5, batch_size=64, verbose=2)
+model_cnn.save("../../models/neural_networks/w2v_cnn.h5")
 
