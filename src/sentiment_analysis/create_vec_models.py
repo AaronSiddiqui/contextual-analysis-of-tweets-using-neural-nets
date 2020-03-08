@@ -4,15 +4,16 @@ from os import path
 from src.nlp.word2vec import W2V
 from src.nlp.doc2vec import D2V
 
-df = pd.read_csv("../../datasets/sentiment140/sentiment140_clean.csv", index_col="id")
+df = pd.read_csv("../../datasets/sentiment140/sentiment140_clean.csv", index_col="id", error_bad_lines=False)
+df.text = df.text.astype(str)
 
 directory = "../../models/nlp/"
 
 default_opts = {"sg": 0,
-        "size": 100,
+        "size": 64,
         "negative": 5,
         "window": 2,
-        "min_count": 2,
+        "min_count": 1,
         "workers": multiprocessing.cpu_count(),
         "alpha": 0.065,
         "min_alpha": 0.065}
@@ -33,9 +34,9 @@ del default_opts["sg"]
 del default_opts["size"]
 del default_opts["window"]
 default_opts["dm"] = 0
-default_opts["vector_size"] = 100
+default_opts["vector_size"] = 64
 
-if not path.exists(directory + "d2v_model_cbow.doc2vec"):
+if not path.exists(directory + "d2v_model_dbow.doc2vec"):
     doc2vec = D2V(df.text, **default_opts)
     doc2vec.create_model(epochs=30, learning_rate=0.002)
     model = doc2vec.save_model(directory + "d2v_model_dbow.doc2vec")
