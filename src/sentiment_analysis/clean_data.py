@@ -30,7 +30,7 @@ print("UTF-8 BOM Example:", df.text[226])
 clean_df = df.drop(["length"], axis=1)
 
 for i in df.index:
-    clean_df.at[i, "text"] = clean_tweet(clean_df.at[i, "text"])
+    clean_df.at[i, "text"] = clean_tweet(clean_df.at[i, "text"], rem_htags=False)
 
 print()
 print("After cleaning...")
