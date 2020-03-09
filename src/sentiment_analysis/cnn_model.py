@@ -5,8 +5,9 @@ from sklearn.model_selection import train_test_split
 from keras.preprocessing.text import Tokenizer
 from keras.preprocessing.sequence import pad_sequences
 from keras.models import Sequential
-from keras.layers import Dense, Dropout, Flatten, Conv1D, GlobalMaxPooling1D
+from keras.layers import Dense, Dropout, Flatten, Conv1D, GlobalMaxPooling1D, LSTM, Bidirectional, Input, Activation, concatenate
 from keras.layers.embeddings import Embedding
+from keras.models import Model
 
 df = pd.read_csv("../../datasets/sentiment140/sentiment140_clean.csv", index_col="id")
 df.text = df.text.astype(str)
@@ -74,43 +75,91 @@ for word, i in tokenizer.word_index.items():
 print()
 print(len(embedding_matrix))
 
-# model_ptw2v = Sequential()
-# model_ptw2v.add(Embedding(num_words, 128, input_length=max_len))
-# model_ptw2v.add(Flatten())
-# model_ptw2v.add(Dense(256, activation='relu'))
-# model_ptw2v.add(Dense(1, activation='sigmoid'))
-# model_ptw2v.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
-# model_ptw2v.fit(x_train_seq, y_train, validation_data=(x_val_seq, y_validation), epochs=5, batch_size=64, verbose=2)
-# model_ptw2v.save("../../models/neural_networks/emb_ann.h5")
+# model_ann = Sequential()
+# model_ann.add(Embedding(num_words, 128, input_length=max_len))
+# model_ann.add(Flatten())
+# model_ann.add(Dense(256, activation='relu'))
+# model_ann.add(Dense(1, activation='sigmoid'))
+# model_ann.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
+# model_ann.fit(x_train_seq, y_train, validation_data=(x_val_seq, y_validation), epochs=5, batch_size=64, verbose=2)
+# model_ann.save("../../models/neural_networks/emb_ann.h5")
 #
-# model_ptw2v = Sequential()
-# model_ptw2v.add(Embedding(num_words, 128, weights=[embedding_matrix], input_length=max_len, trainable=True))
-# model_ptw2v.add(Flatten())
-# model_ptw2v.add(Dense(256, activation='relu'))
-# model_ptw2v.add(Dense(1, activation='sigmoid'))
-# model_ptw2v.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
-# model_ptw2v.fit(x_train_seq, y_train, validation_data=(x_val_seq, y_validation), epochs=5, batch_size=64, verbose=2)
-# model_ptw2v.save("../../models/neural_networks/w2v_ann.h5")
+model_ann = Sequential()
+model_ann.add(Embedding(num_words, 128, weights=[embedding_matrix], input_length=max_len, trainable=True))
+model_ann.add(Flatten())
+model_ann.add(Dense(256, activation='relu'))
+model_ann.add(Dense(1, activation='sigmoid'))
+model_ann.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
+model_ann.fit(x_train_seq, y_train, validation_data=(x_val_seq, y_validation), epochs=5, batch_size=64, verbose=2)
+model_ann.save("../../models/neural_networks/w2v_ann.h5")
 
 
 
-model_cnn = Sequential()
-model_cnn.add(Embedding(num_words, 128, input_length=max_len))
-model_cnn.add(Conv1D(filters=100, kernel_size=4, padding='valid', activation='relu', strides=1))
-model_cnn.add(GlobalMaxPooling1D())
-model_cnn.add(Dense(256, activation='relu'))
-model_cnn.add(Dense(1, activation='sigmoid'))
-model_cnn.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
-model_cnn.fit(x_train_seq, y_train, validation_data=(x_val_seq, y_validation), epochs=5, batch_size=64, verbose=2)
-model_cnn.save("../../models/neural_networks/emb_cnn.h5")
+# model_cnn = Sequential()
+# model_cnn.add(Embedding(num_words, 128, input_length=max_len))
+# model_cnn.add(Conv1D(filters=128, kernel_size=4, padding='valid', activation='relu', strides=1))
+# model_cnn.add(Dense(256, activation='relu'))
+# model_cnn.add(Conv1D(filters=128, kernel_size=4, padding='valid', activation='relu', strides=1))
+# model_cnn.add(Dense(256, activation='relu'))
+# model_cnn.add(GlobalMaxPooling1D())
+# model_cnn.add(Dense(256, activation='relu'))
+# model_cnn.add(Dense(1, activation='sigmoid'))
+# model_cnn.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
+# model_cnn.fit(x_train_seq, y_train, validation_data=(x_val_seq, y_validation), epochs=5, batch_size=64, verbose=2)
+# model_cnn.save("../../models/neural_networks/w2v_cnn.h5")
+#
+# model_cnn = Sequential()
+# model_cnn.add(Embedding(num_words, 128, weights=[embedding_matrix], input_length=max_len, trainable=True))
+# model_cnn.add(Conv1D(filters=128, kernel_size=4, padding='valid', activation='relu', strides=1))
+# model_cnn.add(Dense(256, activation='relu'))
+# model_cnn.add(Conv1D(filters=128, kernel_size=4, padding='valid', activation='relu', strides=1))
+# model_cnn.add(Dense(256, activation='relu'))
+# model_cnn.add(GlobalMaxPooling1D())
+# model_cnn.add(Dense(256, activation='relu'))
+# model_cnn.add(Dense(1, activation='sigmoid'))
+# model_cnn.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
+# model_cnn.fit(x_train_seq, y_train, validation_data=(x_val_seq, y_validation), epochs=5, batch_size=64, verbose=2)
+# model_cnn.save("../../models/neural_networks/w2v_cnn.h5")
 
-model_cnn = Sequential()
-model_cnn.add(Embedding(num_words, 128, weights=[embedding_matrix], input_length=max_len, trainable=True))
-model_cnn.add(Conv1D(filters=100, kernel_size=4, padding='valid', activation='relu', strides=1))
-model_cnn.add(GlobalMaxPooling1D())
-model_cnn.add(Dense(256, activation='relu'))
-model_cnn.add(Dense(1, activation='sigmoid'))
-model_cnn.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
-model_cnn.fit(x_train_seq, y_train, validation_data=(x_val_seq, y_validation), epochs=5, batch_size=64, verbose=2)
-model_cnn.save("../../models/neural_networks/w2v_cnn.h5")
 
+
+# model_rnn = Sequential()
+# model_rnn.add(Embedding(num_words, 128, input_length=max_len))
+# model_rnn.add(Bidirectional(LSTM(128)))
+# model_rnn.add(Dense(256, activation="relu"))
+# model_rnn.add(Dense(1, activation="sigmoid"))
+# model_rnn.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
+# model_rnn.fit(x_train_seq, y_train, validation_data=(x_val_seq, y_validation), epochs=5, batch_size=64, verbose=2)
+# model_rnn.save("../../models/neural_networks/emb_rnn.h5")
+#
+# model_rnn = Sequential()
+# model_rnn.add(Embedding(num_words, 128, weights=[embedding_matrix], input_length=max_len, trainable=True))
+# model_rnn.add(LSTM(128))
+# model_rnn.add(Dense(256, activation="relu"))
+# model_rnn.add(Dense(1, activation="sigmoid"))
+# model_rnn.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
+# model_rnn.fit(x_train_seq, y_train, validation_data=(x_val_seq, y_validation), epochs=5, batch_size=64, verbose=2)
+# model_rnn.save("../../models/neural_networks/w2v_rnn.h5")
+
+
+
+# tweet_input = Input(shape=(140,), dtype='int32')
+#
+# tweet_encoder = Embedding(num_words, 128, weights=[embedding_matrix], input_length=140, trainable=True)(tweet_input)
+# bigram_branch = Conv1D(filters=100, kernel_size=2, padding='valid', activation='relu', strides=1)(tweet_encoder)
+# bigram_branch = GlobalMaxPooling1D()(bigram_branch)
+# trigram_branch = Conv1D(filters=100, kernel_size=3, padding='valid', activation='relu', strides=1)(tweet_encoder)
+# trigram_branch = GlobalMaxPooling1D()(trigram_branch)
+# fourgram_branch = Conv1D(filters=100, kernel_size=4, padding='valid', activation='relu', strides=1)(tweet_encoder)
+# fourgram_branch = GlobalMaxPooling1D()(fourgram_branch)
+# merged = concatenate([bigram_branch, trigram_branch, fourgram_branch], axis=1)
+#
+# merged = Dense(256, activation='relu')(merged)
+# merged = Dropout(0.2)(merged)
+# merged = Dense(1)(merged)
+# output = Activation('sigmoid')(merged)
+# model = Model(inputs=[tweet_input], outputs=[output])
+# model.compile(loss='binary_crossentropy',
+#                   optimizer='adam',
+#                   metrics=['accuracy'])
+# model.fit(x_train_seq, y_train, validation_data=(x_val_seq, y_validation), batch_size=64, epochs=5, verbose=2)
