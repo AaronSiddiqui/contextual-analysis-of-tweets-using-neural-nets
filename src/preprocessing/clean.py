@@ -3,6 +3,7 @@ import re
 import random
 import string
 
+
 """Parses and cleans the tweet"""
 def clean_tweet(tweet, rem_ellipsis=True, rem_urls=True, rem_mentions=True,
                 rem_texemojis=True, repl_mentions=False, rem_htags=True,
