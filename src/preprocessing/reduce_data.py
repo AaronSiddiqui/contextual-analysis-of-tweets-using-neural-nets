@@ -11,6 +11,9 @@ def find_class_ratios(df, cls):
     return ratios
 
 def reduce_dataset(df, cls, ratios, n):
+    if sum([v for v in ratios.values()]) != 1:
+        raise ValueError("Ratios must equal 1")
+
     reduced_dfs = []
 
     for k, v in ratios.items():

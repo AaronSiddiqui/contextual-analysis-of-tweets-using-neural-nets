@@ -11,8 +11,7 @@ def clean_tweet(tweet, rem_ellipsis=True, rem_urls=True, rem_mentions=True,
                 rem_punc=True, repl_nonprint_chars=True, rem_wspace=True):
     # The tweet can either remove @mentions or replace them
     if rem_mentions and repl_mentions:
-        print("You can only choose one of them")
-        return
+        raise ValueError("Either remove mentions or replace them")
 
     # Remove ellipsis i.e. "..."
     # Started with this as there is often problems with processing ellipses, so
