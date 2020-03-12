@@ -3,14 +3,13 @@ from keras.layers import Dense, LSTM, Bidirectional
 from keras.layers.embeddings import Embedding
 
 
-def rnn_01(x_train_seq, x_val_seq, y_train, y_val, num_words, max_len,
-           emb_opts=None):
-    model = Sequential(
-        Embedding(num_words, 128, input_length=max_len, **emb_opts),
-        Bidirectional(LSTM(128)),
-        Dense(256, activation="relu"),
-        Dense(1, activation="sigmoid")
-    )
+def rnn_01(x_train_seq, y_train, x_val_seq, y_val, in_dim, out_dim, in_len,
+           emb_opts={}):
+    model = Sequential()
+    model.add(Embedding(in_dim, out_dim, input_length=in_len, **emb_opts))
+    model.add(Bidirectional(LSTM(128)))
+    model.add(Dense(256, activation="relu"))
+    model.add(Dense(1, activation="sigmoid"))
 
     model.compile(loss='binary_crossentropy', optimizer='adam',
                   metrics=['accuracy'])
