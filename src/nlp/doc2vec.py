@@ -21,21 +21,20 @@ class D2V:
     def __init__(self, corpus, **opts):
         self.corpus = TaggedCorpus(corpus)
 
-    def create_model(self, dm, epochs, learning_rate):
-        default_opts = {"vector_size": 64,
-                        "negative": 5,
+    def create_model(self, dm=0, v_size=64, epochs=30, l_rate=0.002):
+        default_opts = {"negative": 5,
                         "min_count": 1,
                         "workers": multiprocessing.cpu_count(),
                         "alpha": 0.065,
                         "min_alpha": 0.065}
 
-        model = Doc2Vec(dm=dm, **default_opts)
+        model = Doc2Vec(dm=dm, vector_size=v_size, **default_opts)
         model.build_vocab(self.corpus)
 
         for _ in tqdm(range(epochs)):
             model.train(utils.shuffle(self.corpus.to_array()),
                         total_examples=len(self.corpus.to_array()),
                         epochs=1)
-            model.min_alpha = model.alpha - learning_rate
+            model.min_alpha = model.alpha - l_rate
 
         return model
