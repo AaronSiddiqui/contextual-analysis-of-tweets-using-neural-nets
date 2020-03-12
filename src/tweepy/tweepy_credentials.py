@@ -3,12 +3,12 @@ ACCESS_TOKEN = ""
 ACCESS_TOKEN_SECRET = ""
 CONSUMER_KEY = ""
 CONSUMER_SECRET = ""
-directory = "../credentials/"
+cred_dir = "../credentials"
 
-with open(directory + "access_tokens.txt") as f:
+with open(cred_dir + "/access_tokens.txt") as f:
     ACCESS_TOKEN = f.readline().split("\t")[1].rstrip()
     ACCESS_TOKEN_SECRET = f.readline().split("\t")[1].rstrip()
 
-with open(directory + "consumer_api_keys.txt") as f:
+with open(cred_dir + "/consumer_api_keys.txt") as f:
     CONSUMER_KEY = f.readline().split("\t")[1].rstrip()
     CONSUMER_SECRET = f.readline().split("\t")[1].rstrip()
