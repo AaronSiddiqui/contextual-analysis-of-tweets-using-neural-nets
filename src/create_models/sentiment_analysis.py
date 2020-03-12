@@ -33,14 +33,14 @@ def main():
         print("Dropping unnecessary features: id, date, query_string, user")
         df.drop(["id", "date", "query_string", "user"], axis=1, inplace=True)
 
-        print("Creating a new index column")
-        df.reset_index(drop=True, inplace=True)
-        df.index.name = "id"
-
         n = 200000
         print("Reducing to " + str(n) + " entries")
         ratios = find_class_ratios(df, "sentiment")
         df = reduce_dataset(df, "sentiment", ratios, n)
+
+        print("Creating a new index column")
+        df.reset_index(drop=True, inplace=True)
+        df.index.name = "id"
 
         print("Saving reduced dataset:", reduced_path)
         df.to_csv(reduced_path)
@@ -67,9 +67,14 @@ def main():
         df.reset_index(drop=True, inplace=True)
         df.index.name = "id"
 
+        # Change all the positive values to 1 as opposed to 4
+        # Required for training the neural networks
+        df.loc[df["sentiment"] == 4, "sentiment"] = 1
+
         # Vec models have trouble processing the text if this isn't explicitly
         # set as string
         df.text = df.text.astype(str)
+
         print("Saving clean dataset:", clean_path)
         df.to_csv(clean_path)
     else:
