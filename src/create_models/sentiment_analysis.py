@@ -9,6 +9,8 @@ from src.preprocessing.reduce_data import *
 from src.preprocessing.clean_data import *
 from src.nlp.word2vec import W2V
 from src.nlp.doc2vec import D2V
+from src.nlp.utils import *
+from src.neural_networks.cnn import *
 
 
 def main():
@@ -65,7 +67,7 @@ def main():
         df.reset_index(drop=True, inplace=True)
         df.index.name = "id"
 
-        # Vec Models have trouble processing the text if this isn't explicitly
+        # Vec models have trouble processing the text if this isn't explicitly
         # set as string
         df.text = df.text.astype(str)
         print("Saving clean dataset:", clean_path)
@@ -97,23 +99,34 @@ def main():
 
     w2v_cbow, w2v_sg, d2v_dbow, d2v_dm = None, None, None, None
 
-    print("\nCreating Word2Vec Models...")
+    print("\nSplitting the data into training, testing and validation sets")
+    x = df.text
+    y = df.sentiment
+
+    RS = 12345
+    x_train, x_val_test, y_train, y_val_test = \
+        train_test_split(x, y, test_size=0.2, random_state=RS)
+
+    x_val, x_test, y_val, y_test = \
+        train_test_split(x_val_test, y_val_test, test_size=0.5, random_state=RS)
+
+    print("\nCreating Word2Vec models from training data...")
     if not path.exists(w2v_cbow_path) and not path.exists(w2v_sg_path):
         print("Tokenizing words")
-        word2vec = W2V(df.text)
+        word2vec = W2V(x_train)
 
         if not path.exists(w2v_cbow_path):
             print("Creating Word2Vec CBOW model:", w2v_cbow_path)
-            w2v_cbow = word2vec.create_model(sg=0, epochs=30, learning_rate=0.002)
-            w2v_cbow.save_model(w2v_cbow_path)
+            w2v_cbow = word2vec.create_model(sg=0)
+            w2v_cbow.save(w2v_cbow_path)
         else:
             print("Word2Vec CBOW model is already created:", w2v_cbow_path)
             w2v_cbow = KeyedVectors.load(w2v_cbow_path)
 
         if not path.exists(w2v_sg_path):
             print("Creating Word2Vec SG model:", w2v_sg_path)
-            w2v_sg = word2vec.create_model(sg=1, epochs=30, learning_rate=0.002)
-            w2v_sg.save_model(w2v_sg_path)
+            w2v_sg = word2vec.create_model(sg=1)
+            w2v_sg.save(w2v_sg_path)
         else:
             print("Word2Vec SG model is already created:", w2v_sg_path)
             w2v_sg = KeyedVectors.load(w2v_sg_path)
@@ -123,23 +136,23 @@ def main():
         print("Word2Vec SG model is already created:", w2v_sg_path)
         w2v_sg = KeyedVectors.load(w2v_sg_path)
 
-    print("\nCreating Doc2Vec Models...")
+    print("\nCreating Doc2Vec models from training data...")
     if not path.exists(d2v_dbow_path) and not path.exists(d2v_dm_path):
         print("Tokenizing words and tagging documents")
-        doc2vec = D2V(df.text)
+        doc2vec = D2V(x_train)
 
         if not path.exists(d2v_dbow_path):
             print("Creating Doc2Vec DBOW model:", d2v_dbow_path)
-            d2v_dbow = doc2vec.create_model(dm=0, epochs=30, learning_rate=0.002)
-            d2v_dbow.save_model(d2v_dbow_path)
+            d2v_dbow = doc2vec.create_model(dm=0)
+            d2v_dbow.save(d2v_dbow_path)
         else:
             print("Doc2Vec DBOW model is already created:", d2v_dbow_path)
             d2v_dm = KeyedVectors.load(d2v_dbow_path)
 
         if not path.exists(d2v_dm_path):
             print("Creating Doc2Vec DM model:", d2v_dm_path)
-            d2v_dm = doc2vec.create_model(dm=1, epochs=30, learning_rate=0.002)
-            d2v_dm.save_model(d2v_dm_path)
+            d2v_dm = doc2vec.create_model(dm=1)
+            d2v_dm.save(d2v_dm_path)
         else:
             print("Doc2Vec DM model is already created:", d2v_dm_path)
             d2v_dm = KeyedVectors.load(d2v_dm_path)
@@ -149,58 +162,64 @@ def main():
         print("Doc2Vec DM model is already created:", d2v_dm_path)
         d2v_dm = KeyedVectors.load(d2v_dm_path)
 
-
-    embeddings_index = {}
-    count = 0
-    for w in model_cbow.wv.vocab.keys():
-        embeddings_index[w] = np.append(model_cbow.wv[w], model_sg.wv[w])
-
-    x = df.text
-    y = df.sentiment
-
-    SEED = 2000
-    x_train, x_validation_and_test, y_train, y_validation_and_test = \
-        train_test_split(x, y, test_size=0.2, random_state=SEED)
-
-    x_validation, x_test, y_validation, y_test = \
-        train_test_split(x_validation_and_test, y_validation_and_test,
-                         test_size=0.5, random_state=SEED)
-
+    num_words = 65000
+    # The maximum length of a tweet is 280 characters, therefore the maximum
+    # number of words is 280/2 = 140
+    # e.g. a a a .... a a
     max_len = 140
-    num_words = 50000
+    vec_size = 128
 
+    print("\nCreating a tokenizer (converting the words into a sequence of "
+          "integers) with the training data")
     tokenizer = Tokenizer(num_words=num_words)
     tokenizer.fit_on_texts(x_train)
 
-    # print()
-    # print(len(tokenizer.word_index.items()))
-    #
-    # print()
-    # print(len(embeddings_index))
-
+    print("Padding training and validation data")
     sequences = tokenizer.texts_to_sequences(x_train)
     x_train_seq = pad_sequences(sequences, maxlen=max_len)
 
-    for x in x_train[:5]:
-        print(x)
-
-    print()
-    for s in sequences[:5]:
-        print(s)
-
-    sequences_val = tokenizer.texts_to_sequences(x_validation)
+    sequences_val = tokenizer.texts_to_sequences(x_val)
     x_val_seq = pad_sequences(sequences_val, maxlen=max_len)
 
-    embedding_matrix = np.zeros((num_words, 128))
-    for word, i in tokenizer.word_index.items():
-        if i >= num_words:
-            continue
-        embedding_vector = embeddings_index.get(word)
-        if embedding_vector is not None:
-            embedding_matrix[i] = embedding_vector
+    print("Creating an embedding matrix for the Word2Vec models")
+    w2v_emb_index = create_embedding_index(w2v_cbow.wv, w2v_sg.wv)
+    w2v_emb_matrix = create_embedding_matrix(num_words, vec_size,
+                                             tokenizer.word_index,
+                                             w2v_emb_index)
 
-    print()
-    print(len(embedding_matrix))
+    print("Creating an embedding matrix for the Doc2Vec models")
+    d2v_emb_index = create_embedding_index(d2v_dbow.wv, d2v_dm.wv)
+    d2v_emb_matrix = create_embedding_matrix(num_words, vec_size,
+                                             tokenizer.word_index,
+                                             d2v_emb_index)
+
+    cnn_dir = nn_dir + "/cnn"
+    cnn_emb_path = cnn_dir + "/cnn_emb.h2"
+    cnn_w2v_path = cnn_dir + "/cnn_w2v.h2"
+    cnn_d2v_path = cnn_dir + "/cnn_d2v.h2"
+
+    cnn_emb, cnn_w2v, cnn_d2v, = None, None, None
+
+    print("\nCreating CNN Models...")
+    if not path.exists(cnn_emb_path):
+        print("Creating CNN with basic embedding layer")
+        cnn_emb = cnn_01(x_train_seq, y_train, x_val_seq, y_val, num_words,
+                         vec_size, max_len)
+        cnn_emb.save(cnn_emb_path)
+
+    if not path.exists(cnn_w2v_path):
+        print("Creating CNN with Word2Vec model")
+        cnn_w2v = cnn_01(x_train_seq, y_train, x_val_seq, y_val, num_words,
+                         vec_size, max_len, {"weights": [w2v_emb_matrix],
+                                             "trainable": True})
+        cnn_w2v.save(cnn_w2v_path)
+
+    if not path.exists(cnn_d2v_path):
+        print("Creating CNN with Doc2Vec model")
+        cnn_d2v = cnn_01(x_train_seq, y_train, x_val_seq, y_val, num_words,
+                         vec_size, max_len, {"weights": [d2v_emb_matrix],
+                                             "trainable": True})
+        cnn_d2v.save(cnn_d2v_path)
 
 
 if __name__ == "__main__":
