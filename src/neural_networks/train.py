@@ -5,7 +5,7 @@ from keras.callbacks import EarlyStopping, ModelCheckpoint
 
 
 def train_nn(model, model_path, x_train, y_train, x_val, y_val,
-             loss="binary_crossentropy", epochs=5, batch_size=64):
+             loss, epochs=5, batch_size=64):
     model.compile(loss=loss, optimizer="adam", metrics=["accuracy"])
 
     # Stops the model if it doesn't improve after a certain number of epochs
