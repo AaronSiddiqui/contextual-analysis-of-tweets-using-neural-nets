@@ -105,9 +105,9 @@ def main():
     x = df.text
     y = df.emotions
 
+    # Converts the ints to binary class matrices so that utilised with the
+    # "categorical_crossentropy" loss function in the neural networks
     binary_y = to_categorical(y)
-    for i in binary_y[:10]:
-        print(i)
 
     # Random state constant to ensure the data is always split the same for
     # testing
