@@ -8,7 +8,7 @@ from src.create_models.utils import create_dir_if_nonexist, \
     create_embedding_matrix, create_vec_model, create_models_to_analyse
 from src.nlp.word2vec import W2V
 from src.nlp.doc2vec import D2V
-from src.neural_networks.ann import ann_01
+from src.neural_networks.mlp import mlp_01
 from src.neural_networks.cnn import cnn_01, cnn_02
 from src.neural_networks.rnn import rnn_01
 from src.preprocessing.reduce_data import find_feature_ratios, reduce_dataset
@@ -100,17 +100,13 @@ def main():
         train_test_split(x_val_test, y_val_test, test_size=0.5, random_state=RS)
 
     nlp_dir = sa_model_dir + "/nlp"
-    w2v_dir, d2v_dir = nlp_dir + "/word2vec", nlp_dir + "/doc2vec"
-
-    create_dir_if_nonexist(w2v_dir)
-    create_dir_if_nonexist(d2v_dir)
-
+    w2v_dir = nlp_dir + "/word2vec"
     w2v_cbow_path = w2v_dir + "/w2v_cbow.word2vec"
     w2v_sg_path = w2v_dir + "/w2v_sg.word2vec"
-    d2v_dbow_path = d2v_dir + "/d2v_dbow.doc2vec"
-    d2v_dm_path = d2v_dir + "/d2v_dm.doc2vec"
 
-    word2vec, doc2vec = None, None
+    word2vec = None
+
+    create_dir_if_nonexist(w2v_dir)
 
     print("\nCreating Word2Vec models from training data...")
     if not path.exists(w2v_cbow_path) or not path.exists(w2v_sg_path):
@@ -120,13 +116,21 @@ def main():
     w2v_cbow = create_vec_model("Word2Vec CBOW", w2v_cbow_path, word2vec, sg=0)
     w2v_sg = create_vec_model("Word2Vec SG", w2v_sg_path, word2vec, sg=1)
 
-    print("\nCreating Doc2Vec models from training data...")
-    if not path.exists(d2v_dbow_path) or not path.exists(d2v_dm_path):
-        print("Tokenizing words and tagging documents")
-        doc2vec = D2V(x_train)
-
-    d2v_dbow = create_vec_model("Doc2Vec DBOW", d2v_dbow_path, doc2vec, dm=0)
-    d2v_dm = create_vec_model("Doc2Vec DM", d2v_dm_path, doc2vec, dm=1)
+    # d2v_dir = nlp_dir + "/doc2vec"
+    # d2v_dbow_path = d2v_dir + "/d2v_dbow.doc2vec"
+    # d2v_dm_path = d2v_dir + "/d2v_dm.doc2vec"
+    #
+    # doc2vec = None
+    #
+    # create_dir_if_nonexist(d2v_dir)
+    #
+    # print("\nCreating Doc2Vec models from training data...")
+    # if not path.exists(d2v_dbow_path) or not path.exists(d2v_dm_path):
+    #     print("Tokenizing words and tagging documents")
+    #     doc2vec = D2V(x_train)
+    #
+    # d2v_dbow = create_vec_model("Doc2Vec DBOW", d2v_dbow_path, doc2vec, dm=0)
+    # d2v_dm = create_vec_model("Doc2Vec DM", d2v_dm_path, doc2vec, dm=1)
 
     # word = "facebook"
     # print(w2v_cbow.wv.most_similar(word))
@@ -135,13 +139,12 @@ def main():
     # print(d2v_dm.wv.most_similar(word))
 
     print("\nCreating embedding matrices...")
-
-    num_words = 28000
+    num_words = len(w2v_cbow.wv.vocab)
     # The maximum length of a tweet is 280 characters, therefore the maximum
     # number of words is 280/2 = 140
     # e.g. a a a .... a a
     max_len = 140
-    vec_size = 128
+    vec_size = 64
 
     print("Creating a tokenizer (converting the words into a sequence of "
           "integers) with the training data")
@@ -158,56 +161,68 @@ def main():
     sequences_test = tokenizer.texts_to_sequences(x_test)
     x_test_seq = pad_sequences(sequences_test, maxlen=max_len)
 
-    print("Creating an embedding matrix for the Word2Vec models")
-    w2v_emb_matrix = create_embedding_matrix(w2v_cbow.wv, w2v_sg.wv, num_words,
-                                             vec_size, tokenizer.word_index)
+    print("Creating an embedding matrix for the Word2Vec CBOW model")
+    w2v_cbow_emb_matrix = create_embedding_matrix(w2v_cbow.wv, num_words,
+                                                  vec_size,
+                                                  tokenizer.word_index)
 
-    print("Creating an embedding matrix for the Doc2Vec models")
-    d2v_emb_matrix = create_embedding_matrix(d2v_dbow.wv, d2v_dm.wv, num_words,
-                                             vec_size, tokenizer.word_index)
+    print("Creating an embedding matrix for the Word2Vec SG model")
+    w2v_sg_emb_matrix = create_embedding_matrix(w2v_sg.wv, num_words,
+                                                vec_size,
+                                                tokenizer.word_index)
+
+    # print("Creating an embedding matrix for the Doc2Vec DBOW model")
+    # d2v_dbow_emb_matrix = create_embedding_matrix(d2v_dbow.wv, num_words,
+    #                                               vec_size,
+    #                                               tokenizer.word_index)
+    #
+    # print("Creating an embedding matrix for the Doc2Vec DM model")
+    # d2v_dm_emb_matrix = create_embedding_matrix(d2v_dm.wv, num_words,
+    #                                             vec_size,
+    #                                             tokenizer.word_index)
 
     nn_dir = sa_model_dir + "/neural_networks"
-    ann_dir, cnn_dir, rnn_dir = nn_dir + "/ann", nn_dir + "/cnn", nn_dir + "/rnn"
-
-    create_dir_if_nonexist(ann_dir)
-    create_dir_if_nonexist(cnn_dir)
-    create_dir_if_nonexist(rnn_dir)
 
     models = []
-
     nn_args = [x_train_seq, y_train, x_val_seq, y_val, num_words, vec_size,
                max_len]
 
+    cnn_dir = nn_dir + "/cnn"
+    create_dir_if_nonexist(cnn_dir)
+
     print("\nCreating CNN 01 models...")
     cnn_01_path = cnn_dir + "/cnn_01"
-    cnn_01_models = create_models_to_analyse(w2v_emb_matrix, d2v_emb_matrix,
-                                             "CNN 01", cnn_01_path, cnn_01,
-                                             nn_args + [2])
-
+    cnn_01_models = create_models_to_analyse(w2v_cbow_emb_matrix,
+                                             w2v_sg_emb_matrix, "CNN 01",
+                                             cnn_01_path, cnn_01,
+                                             nn_args + [3])  # add kernel size
     models.extend(cnn_01_models)
 
     print("\nCreating CNN 02 models...")
     cnn_02_path = cnn_dir + "/cnn_02"
-    cnn_02_models = create_models_to_analyse(w2v_emb_matrix, d2v_emb_matrix,
-                                             "CNN 02", cnn_02_path, cnn_02,
-                                             nn_args)
-
+    cnn_02_models = create_models_to_analyse(w2v_cbow_emb_matrix,
+                                             w2v_sg_emb_matrix, "CNN 02",
+                                             cnn_02_path, cnn_02, nn_args)
     models.extend(cnn_02_models)
 
-    print("\nCreating ANN 01 models...")
-    ann_01_path = ann_dir + "/ann_01"
-    ann_01_models = create_models_to_analyse(w2v_emb_matrix, d2v_emb_matrix,
-                                             "ANN 01", ann_01_path, ann_01,
-                                             nn_args)
+    mlp_dir = nn_dir + "/mlp"
+    create_dir_if_nonexist(mlp_dir)
 
-    models.extend(ann_01_models)
+    print("\nCreating MLP 01 models...")
+    mlp_01_path = mlp_dir + "/mlp_01"
+    mlp_01_models = create_models_to_analyse(w2v_cbow_emb_matrix,
+                                             w2v_sg_emb_matrix, "MLP 01",
+                                             mlp_01_path, mlp_01, nn_args)
+    models.extend(mlp_01_models)
+
+    rnn_dir = nn_dir + "/rnn"
+    create_dir_if_nonexist(rnn_dir)
 
     print("\nCreating RNN 01 models...")
     rnn_01_path = rnn_dir + "/rnn_01"
-    rnn_01_models = create_models_to_analyse(w2v_emb_matrix, d2v_emb_matrix,
-                                             "RNN 01", rnn_01_path, rnn_01,
-                                             nn_args)
-
+    rnn_01_models = create_models_to_analyse(w2v_cbow_emb_matrix,
+                                             w2v_sg_emb_matrix, "RNN 01",
+                                             rnn_01_path, rnn_01, nn_args)
     models.extend(rnn_01_models)
 
     print("\nEvaluating models...")
