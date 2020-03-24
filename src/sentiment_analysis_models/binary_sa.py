@@ -48,7 +48,7 @@ def main():
         ratios = find_feature_ratios(df, "sentiment")
         df = reduce_dataset(df, "sentiment", ratios, n)
 
-        # Create a
+        # Create a new id for each tweet
         print("Creating a new index column")
         df.reset_index(drop=True, inplace=True)
         df.index.name = "id"
