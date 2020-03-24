@@ -1,22 +1,28 @@
-import pandas as pd
 import numpy as np
-from os import makedirs, path
-from gensim.models import KeyedVectors
-from sklearn.model_selection import train_test_split
+import pandas as pd
+import os
 from keras.preprocessing.text import Tokenizer
 from keras.preprocessing.sequence import pad_sequences
-from src.preprocessing.reduce_data import *
-from src.preprocessing.clean_data import *
+from os import path
+from src.create_models.utils import create_dir_if_nonexist, \
+    create_embedding_matrix, create_vec_model, create_models_to_analyse
 from src.nlp.word2vec import W2V
 from src.nlp.doc2vec import D2V
-from src.nlp.utils import *
-from src.neural_networks.cnn import *
+from src.neural_networks.ann import ann_01
+from src.neural_networks.cnn import cnn_01, cnn_02
+from src.neural_networks.rnn import rnn_01
+from src.preprocessing.reduce_data import find_feature_ratios, reduce_dataset
+from src.preprocessing.clean_data import clean_tweet
+from sklearn.model_selection import train_test_split
 
 
 def main():
     print("Creating Sentiment Analysis Models Using the Sentiment 140 Dataset")
 
-    sent140_dir = "../../datasets/sentiment140"
+    os.chdir("../..")
+    sent140_dir = "datasets/sentiment140"
+    sa_model_dir = "models/binary_sentiment_analysis"
+
     original_path = sent140_dir + "/sentiment140_original.csv"
     reduced_path = sent140_dir + "/sentiment140_reduced.csv"
     clean_path = sent140_dir + "/sentiment140_clean.csv"
@@ -35,8 +41,12 @@ def main():
 
         n = 200000
         print("Reducing to " + str(n) + " entries")
-        ratios = find_class_ratios(df, "sentiment")
+        ratios = find_feature_ratios(df, "sentiment")
         df = reduce_dataset(df, "sentiment", ratios, n)
+
+        # Change all the positive values to 1 as opposed to 4
+        # Required for training the neural networks
+        df.loc[df["sentiment"] == 4, "sentiment"] = 1
 
         print("Creating a new index column")
         df.reset_index(drop=True, inplace=True)
@@ -63,13 +73,10 @@ def main():
         df.text.replace("", np.nan, inplace=True)
         df.dropna(inplace=True)
 
+        # Do this again because it was lost when null entries were dropped
         print("Creating a new index column")
         df.reset_index(drop=True, inplace=True)
         df.index.name = "id"
-
-        # Change all the positive values to 1 as opposed to 4
-        # Required for training the neural networks
-        df.loc[df["sentiment"] == 4, "sentiment"] = 1
 
         # Vec models have trouble processing the text if this isn't explicitly
         # set as string
@@ -80,29 +87,6 @@ def main():
     else:
         print("Clean dataset is already created:", clean_path)
         df = pd.read_csv(clean_path, index_col="id")
-
-    sa_model_dir = "../../models/sentiment_analysis"
-    nn_dir, nlp_dir = sa_model_dir + "/neural_networks", sa_model_dir + "/nlp"
-    w2v_dir, d2v_dir = nlp_dir + "/word2vec", nlp_dir + "/doc2vec"
-
-    if not path.exists(nn_dir):
-        print("Creating directory:", nn_dir)
-        makedirs(nn_dir)
-
-    if not path.exists(w2v_dir):
-        print("Creating directory:", w2v_dir)
-        makedirs(w2v_dir)
-
-    if not path.exists(d2v_dir):
-        print("Creating directory:", d2v_dir)
-        makedirs(d2v_dir)
-
-    w2v_cbow_path = w2v_dir + "/w2v_cbow.word2vec"
-    w2v_sg_path = w2v_dir + "/w2v_sg.word2vec"
-    d2v_dbow_path = d2v_dir + "/d2v_dbow.doc2vec"
-    d2v_dm_path = d2v_dir + "/d2v_dm.doc2vec"
-
-    w2v_cbow, w2v_sg, d2v_dbow, d2v_dm = None, None, None, None
 
     print("\nSplitting the data into training, testing and validation sets")
     x = df.text
@@ -115,116 +99,121 @@ def main():
     x_val, x_test, y_val, y_test = \
         train_test_split(x_val_test, y_val_test, test_size=0.5, random_state=RS)
 
+    nlp_dir = sa_model_dir + "/nlp"
+    w2v_dir, d2v_dir = nlp_dir + "/word2vec", nlp_dir + "/doc2vec"
+
+    create_dir_if_nonexist(w2v_dir)
+    create_dir_if_nonexist(d2v_dir)
+
+    w2v_cbow_path = w2v_dir + "/w2v_cbow.word2vec"
+    w2v_sg_path = w2v_dir + "/w2v_sg.word2vec"
+    d2v_dbow_path = d2v_dir + "/d2v_dbow.doc2vec"
+    d2v_dm_path = d2v_dir + "/d2v_dm.doc2vec"
+
+    word2vec, doc2vec = None, None
+
     print("\nCreating Word2Vec models from training data...")
-    if not path.exists(w2v_cbow_path) and not path.exists(w2v_sg_path):
+    if not path.exists(w2v_cbow_path) or not path.exists(w2v_sg_path):
         print("Tokenizing words")
         word2vec = W2V(x_train)
 
-        if not path.exists(w2v_cbow_path):
-            print("Creating Word2Vec CBOW model:", w2v_cbow_path)
-            w2v_cbow = word2vec.create_model(sg=0)
-            w2v_cbow.save(w2v_cbow_path)
-        else:
-            print("Word2Vec CBOW model is already created:", w2v_cbow_path)
-            w2v_cbow = KeyedVectors.load(w2v_cbow_path)
-
-        if not path.exists(w2v_sg_path):
-            print("Creating Word2Vec SG model:", w2v_sg_path)
-            w2v_sg = word2vec.create_model(sg=1)
-            w2v_sg.save(w2v_sg_path)
-        else:
-            print("Word2Vec SG model is already created:", w2v_sg_path)
-            w2v_sg = KeyedVectors.load(w2v_sg_path)
-    else:
-        print("Word2Vec CBOW model is already created:", w2v_cbow_path)
-        w2v_cbow = KeyedVectors.load(w2v_cbow_path)
-        print("Word2Vec SG model is already created:", w2v_sg_path)
-        w2v_sg = KeyedVectors.load(w2v_sg_path)
+    w2v_cbow = create_vec_model("Word2Vec CBOW", w2v_cbow_path, word2vec, sg=0)
+    w2v_sg = create_vec_model("Word2Vec SG", w2v_sg_path, word2vec, sg=1)
 
     print("\nCreating Doc2Vec models from training data...")
-    if not path.exists(d2v_dbow_path) and not path.exists(d2v_dm_path):
+    if not path.exists(d2v_dbow_path) or not path.exists(d2v_dm_path):
         print("Tokenizing words and tagging documents")
         doc2vec = D2V(x_train)
 
-        if not path.exists(d2v_dbow_path):
-            print("Creating Doc2Vec DBOW model:", d2v_dbow_path)
-            d2v_dbow = doc2vec.create_model(dm=0)
-            d2v_dbow.save(d2v_dbow_path)
-        else:
-            print("Doc2Vec DBOW model is already created:", d2v_dbow_path)
-            d2v_dm = KeyedVectors.load(d2v_dbow_path)
+    d2v_dbow = create_vec_model("Doc2Vec DBOW", d2v_dbow_path, doc2vec, dm=0)
+    d2v_dm = create_vec_model("Doc2Vec DM", d2v_dm_path, doc2vec, dm=1)
 
-        if not path.exists(d2v_dm_path):
-            print("Creating Doc2Vec DM model:", d2v_dm_path)
-            d2v_dm = doc2vec.create_model(dm=1)
-            d2v_dm.save(d2v_dm_path)
-        else:
-            print("Doc2Vec DM model is already created:", d2v_dm_path)
-            d2v_dm = KeyedVectors.load(d2v_dm_path)
-    else:
-        print("Doc2Vec DBOW model is already created:", d2v_dbow_path)
-        d2v_dbow = KeyedVectors.load(d2v_dbow_path)
-        print("Doc2Vec DM model is already created:", d2v_dm_path)
-        d2v_dm = KeyedVectors.load(d2v_dm_path)
+    # word = "facebook"
+    # print(w2v_cbow.wv.most_similar(word))
+    # print(w2v_sg.wv.most_similar(word))
+    # print(d2v_dbow.wv.most_similar(word))
+    # print(d2v_dm.wv.most_similar(word))
 
-    num_words = 65000
+    print("\nCreating embedding matrices...")
+
+    num_words = 28000
     # The maximum length of a tweet is 280 characters, therefore the maximum
     # number of words is 280/2 = 140
     # e.g. a a a .... a a
     max_len = 140
     vec_size = 128
 
-    print("\nCreating a tokenizer (converting the words into a sequence of "
+    print("Creating a tokenizer (converting the words into a sequence of "
           "integers) with the training data")
     tokenizer = Tokenizer(num_words=num_words)
     tokenizer.fit_on_texts(x_train)
 
-    print("Padding training and validation data")
-    sequences = tokenizer.texts_to_sequences(x_train)
-    x_train_seq = pad_sequences(sequences, maxlen=max_len)
+    print("Padding training, testing and validation data")
+    sequences_train = tokenizer.texts_to_sequences(x_train)
+    x_train_seq = pad_sequences(sequences_train, maxlen=max_len)
 
     sequences_val = tokenizer.texts_to_sequences(x_val)
     x_val_seq = pad_sequences(sequences_val, maxlen=max_len)
 
+    sequences_test = tokenizer.texts_to_sequences(x_test)
+    x_test_seq = pad_sequences(sequences_test, maxlen=max_len)
+
     print("Creating an embedding matrix for the Word2Vec models")
-    w2v_emb_index = create_embedding_index(w2v_cbow.wv, w2v_sg.wv)
-    w2v_emb_matrix = create_embedding_matrix(num_words, vec_size,
-                                             tokenizer.word_index,
-                                             w2v_emb_index)
+    w2v_emb_matrix = create_embedding_matrix(w2v_cbow.wv, w2v_sg.wv, num_words,
+                                             vec_size, tokenizer.word_index)
 
     print("Creating an embedding matrix for the Doc2Vec models")
-    d2v_emb_index = create_embedding_index(d2v_dbow.wv, d2v_dm.wv)
-    d2v_emb_matrix = create_embedding_matrix(num_words, vec_size,
-                                             tokenizer.word_index,
-                                             d2v_emb_index)
+    d2v_emb_matrix = create_embedding_matrix(d2v_dbow.wv, d2v_dm.wv, num_words,
+                                             vec_size, tokenizer.word_index)
 
-    cnn_dir = nn_dir + "/cnn"
-    cnn_emb_path = cnn_dir + "/cnn_emb.h2"
-    cnn_w2v_path = cnn_dir + "/cnn_w2v.h2"
-    cnn_d2v_path = cnn_dir + "/cnn_d2v.h2"
+    nn_dir = sa_model_dir + "/neural_networks"
+    ann_dir, cnn_dir, rnn_dir = nn_dir + "/ann", nn_dir + "/cnn", nn_dir + "/rnn"
 
-    cnn_emb, cnn_w2v, cnn_d2v, = None, None, None
+    create_dir_if_nonexist(ann_dir)
+    create_dir_if_nonexist(cnn_dir)
+    create_dir_if_nonexist(rnn_dir)
 
-    print("\nCreating CNN Models...")
-    if not path.exists(cnn_emb_path):
-        print("Creating CNN with basic embedding layer")
-        cnn_emb = cnn_01(x_train_seq, y_train, x_val_seq, y_val, num_words,
-                         vec_size, max_len)
-        cnn_emb.save(cnn_emb_path)
+    models = []
 
-    if not path.exists(cnn_w2v_path):
-        print("Creating CNN with Word2Vec model")
-        cnn_w2v = cnn_01(x_train_seq, y_train, x_val_seq, y_val, num_words,
-                         vec_size, max_len, {"weights": [w2v_emb_matrix],
-                                             "trainable": True})
-        cnn_w2v.save(cnn_w2v_path)
+    nn_args = [x_train_seq, y_train, x_val_seq, y_val, num_words, vec_size,
+               max_len]
 
-    if not path.exists(cnn_d2v_path):
-        print("Creating CNN with Doc2Vec model")
-        cnn_d2v = cnn_01(x_train_seq, y_train, x_val_seq, y_val, num_words,
-                         vec_size, max_len, {"weights": [d2v_emb_matrix],
-                                             "trainable": True})
-        cnn_d2v.save(cnn_d2v_path)
+    print("\nCreating CNN 01 models...")
+    cnn_01_path = cnn_dir + "/cnn_01"
+    cnn_01_models = create_models_to_analyse(w2v_emb_matrix, d2v_emb_matrix,
+                                             "CNN 01", cnn_01_path, cnn_01,
+                                             nn_args + [2])
+
+    models.extend(cnn_01_models)
+
+    print("\nCreating CNN 02 models...")
+    cnn_02_path = cnn_dir + "/cnn_02"
+    cnn_02_models = create_models_to_analyse(w2v_emb_matrix, d2v_emb_matrix,
+                                             "CNN 02", cnn_02_path, cnn_02,
+                                             nn_args)
+
+    models.extend(cnn_02_models)
+
+    print("\nCreating ANN 01 models...")
+    ann_01_path = ann_dir + "/ann_01"
+    ann_01_models = create_models_to_analyse(w2v_emb_matrix, d2v_emb_matrix,
+                                             "ANN 01", ann_01_path, ann_01,
+                                             nn_args)
+
+    models.extend(ann_01_models)
+
+    print("\nCreating RNN 01 models...")
+    rnn_01_path = rnn_dir + "/rnn_01"
+    rnn_01_models = create_models_to_analyse(w2v_emb_matrix, d2v_emb_matrix,
+                                             "RNN 01", rnn_01_path, rnn_01,
+                                             nn_args)
+
+    models.extend(rnn_01_models)
+
+    print("\nEvaluating models...")
+    for m in models:
+        loss, acc = m[1].evaluate(x_test_seq, y_test, verbose=0)
+        print("Model:", m[0], "\tAccuracy:", acc)
 
 
 if __name__ == "__main__":
