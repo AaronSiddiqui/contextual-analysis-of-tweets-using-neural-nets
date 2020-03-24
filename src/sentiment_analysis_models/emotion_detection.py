@@ -17,17 +17,18 @@ from sklearn.model_selection import train_test_split
 
 
 def main():
-    print("Creating the Emotion Detection Models Using the Emotion Dataset")
+    print("Creating the Emotion Detection Models Using the Emotion "
+          "Classification Dataset")
 
     # Switches to the base directory to I don't always have to type "../.."
     os.chdir("../..")
     # Directories for the datasets and models
-    emotion_dataset_dir = "datasets/emotion_dataset"
+    emotion_classification_dir = "datasets/emotion_classification"
     ed_model_dir = "models/emotion_detection"
 
-    original_path = emotion_dataset_dir + "/emotion_dataset_original.csv"
-    reduced_path = emotion_dataset_dir + "/emotion_dataset_reduced.csv"
-    clean_path = emotion_dataset_dir + "/emotion_dataset_clean.csv"
+    original_path = emotion_classification_dir + "/emotion_classification_original.csv"
+    reduced_path = emotion_classification_dir + "/emotion_classification_reduced.csv"
+    clean_path = emotion_classification_dir + "/emotion_classification_clean.csv"
 
     df = None
 
