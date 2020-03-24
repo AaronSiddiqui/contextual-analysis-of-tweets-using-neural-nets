@@ -1,5 +1,5 @@
-from keras.layers import Dense, Dropout, Conv1D, GlobalMaxPooling1D, Input, \
-    Activation, concatenate
+from keras.layers import Dense, Conv1D, GlobalMaxPooling1D, Input, Activation,\
+    concatenate
 from keras.layers.embeddings import Embedding
 from keras.models import Model, Sequential
 from src.neural_networks.train import train_nn
@@ -8,14 +8,14 @@ from src.neural_networks.train import train_nn
 
 
 def cnn_01(model_path, x_train, y_train, x_val, y_val, in_dim, out_dim, in_len,
-           ker_size, emb_opts):
+           final_act_func, ker_size, emb_opts):
     model = Sequential()
     model.add(Embedding(in_dim, out_dim, input_length=in_len, **emb_opts))
     model.add(Conv1D(filters=128, kernel_size=ker_size, padding="valid",
                      activation="relu", strides=1))
     model.add(GlobalMaxPooling1D())
-    model.add(Dense(256, activation="relu"))
-    model.add(Dense(1, activation="sigmoid"))
+    model.add(Dense(out_dim*2, activation="relu"))
+    model.add(Dense(1, activation=final_act_func))
 
     return train_nn(model, model_path, x_train, y_train, x_val, y_val)
 
@@ -25,7 +25,7 @@ def cnn_01(model_path, x_train, y_train, x_val, y_val, in_dim, out_dim, in_len,
 
 
 def cnn_02(model_path, x_train, y_train, x_val, y_val, in_dim, out_dim, in_len,
-           emb_opts):
+           final_act_func, emb_opts):
     tweet_input = Input(shape=(in_len,), dtype="int32")
 
     tweet_encoder = Embedding(in_dim, out_dim, input_length=in_len,
@@ -46,9 +46,9 @@ def cnn_02(model_path, x_train, y_train, x_val, y_val, in_dim, out_dim, in_len,
     merged = concatenate([bigram_branch, trigram_branch, fourgram_branch],
                          axis=1)
 
-    merged = Dense(256, activation="relu")(merged)
+    merged = Dense(out_dim*2, activation="relu")(merged)
     merged = Dense(1)(merged)
-    output = Activation("sigmoid")(merged)
+    output = Activation(final_act_func)(merged)
     model = Model(inputs=[tweet_input], outputs=[output])
 
     return train_nn(model, model_path, x_train, y_train, x_val, y_val)
