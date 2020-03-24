@@ -4,7 +4,7 @@ import os
 from keras.preprocessing.text import Tokenizer
 from keras.preprocessing.sequence import pad_sequences
 from os import path
-from src.create_models.utils import create_dir_if_nonexist, \
+from src.sentiment_analysis_models.utils import create_dir_if_nonexist, \
     create_embedding_matrix, create_vec_model, create_models_to_analyse
 from src.nlp.word2vec import W2V
 from src.nlp.doc2vec import D2V
@@ -14,7 +14,6 @@ from src.neural_networks.rnn import rnn_01
 from src.preprocessing.reduce_data import find_feature_ratios, reduce_dataset
 from src.preprocessing.clean_data import clean_tweet
 from sklearn.model_selection import train_test_split
-
 
 def main():
     print("Creating Sentiment Analysis Models Using the Sentiment 140 Dataset")
