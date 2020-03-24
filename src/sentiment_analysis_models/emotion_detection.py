@@ -17,7 +17,7 @@ from sklearn.model_selection import train_test_split
 
 
 def main():
-    print("Creating Sentiment Analysis Models Using the Sentiment 140 Dataset")
+    print("Creating the Emotion Detection Models Using the Emotion Dataset")
 
     # Switches to the base directory to I don't always have to type "../.."
     os.chdir("../..")
@@ -62,7 +62,7 @@ def main():
         df = pd.read_csv(reduced_path, index_col="id")
 
         # Emotions are currently represented as strings. These need to be
-        # converted to ints so that they can be trained in the neural network
+        # encoded to ints so that they can be trained in the neural network
         print("Encode the strings with ints for the feature emotions")
         emotion_as_ints = {"joy": 0, "love": 1, "surprise": 2, "fear": 3,
                            "anger": 4, "sadness": 5}

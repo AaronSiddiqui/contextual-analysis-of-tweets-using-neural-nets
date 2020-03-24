@@ -17,7 +17,8 @@ from sklearn.model_selection import train_test_split
 
 
 def main():
-    print("Creating Sentiment Analysis Models Using the Sentiment 140 Dataset")
+    print("Creating Binary Sentiment Analysis Model Using the Sentiment 140 "
+          "Dataset")
 
     # Switches to the base directory to I don't always have to type "../.."
     os.chdir("../..")
