@@ -36,7 +36,7 @@ def create_embedding_matrix(word_emb_map, num_words, vec_size,
     return emb_matrix
 
 
-"""Creates/loads and returns a vector model depending on it's existence"""
+"""Creates/loads and returns a Word2Vec model depending on it's existence"""
 
 
 def create_vec_model(model_type, model_path, vec_cls, **model_kwargs):
@@ -79,7 +79,7 @@ def create_models_to_analyse(w2v_cbow_emb_matrix, w2v_sg_emb_matrix, nn_type,
     model_emb = create_nn_model(model_emb_type, model_path + "_emb.h5",
                                 model_func, model_posargs)
 
-    # Word2Vec embedding matrix is added to this model
+    # Word2Vec CBOW embedding matrix is added to this model
     model_w2v_cbow_type = nn_type + " with Word2Vec CBOW"
     model_w2v_cbow = create_nn_model(model_w2v_cbow_type,
                                      model_path + "_w2v_cbow.h5",
@@ -87,7 +87,7 @@ def create_models_to_analyse(w2v_cbow_emb_matrix, w2v_sg_emb_matrix, nn_type,
                                      {"weights": [w2v_cbow_emb_matrix],
                                       "trainable": True})
 
-    # Word2Vec embedding matrix is added to this model
+    # Word2Vec SG embedding matrix is added to this model
     model_w2v_sg_type = nn_type + " with Word2Vec SG"
     model_w2v_sg = create_nn_model(model_w2v_sg_type,
                                    model_path + "_w2v_sg.h5",

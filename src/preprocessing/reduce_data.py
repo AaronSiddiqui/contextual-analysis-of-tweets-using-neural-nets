@@ -7,10 +7,10 @@ def find_feature_ratios(df, feat):
     total_rows = len(df)
     ratios = {}
 
-    # A
     for cls in df[feat].unique().tolist():
+        # ratio = occurrences of the class/total number of rows
         num = len(df.loc[df[feat] == cls])
-        ratios[cls] = num / total_rows
+        ratios[cls] = num/total_rows
 
     return ratios
 
@@ -25,10 +25,13 @@ def reduce_dataset(df, feat, ratios, n):
 
     reduced_dfs = []
 
+    # Extracts the dataframe for each class based its ratio and adds it to
+    # reduced_dfs
     for cls, ratio in ratios.items():
         num_rows = int(n * ratio)
         reduced_df = df.loc[df[feat] == cls]
 
         reduced_dfs.append(reduced_df.head(num_rows))
 
+    # Returns the concatenated version
     return pd.concat(reduced_dfs)

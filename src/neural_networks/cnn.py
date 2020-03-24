@@ -31,15 +31,15 @@ def cnn_02(model_path, x_train, y_train, x_val, y_val, in_dim, out_dim, in_len,
     tweet_encoder = Embedding(in_dim, out_dim, input_length=in_len,
                               **emb_opts)(tweet_input)
 
-    bigram_branch = Conv1D(filters=out_dim, kernel_size=2, padding="valid",
+    bigram_branch = Conv1D(filters=128, kernel_size=2, padding="valid",
                            activation="relu", strides=1)(tweet_encoder)
     bigram_branch = GlobalMaxPooling1D()(bigram_branch)
 
-    trigram_branch = Conv1D(filters=out_dim, kernel_size=3, padding="valid",
+    trigram_branch = Conv1D(filters=128, kernel_size=3, padding="valid",
                             activation="relu", strides=1)(tweet_encoder)
     trigram_branch = GlobalMaxPooling1D()(trigram_branch)
 
-    fourgram_branch = Conv1D(filters=out_dim, kernel_size=4, padding="valid",
+    fourgram_branch = Conv1D(filters=128, kernel_size=4, padding="valid",
                              activation="relu", strides=1)(tweet_encoder)
     fourgram_branch = GlobalMaxPooling1D()(fourgram_branch)
 
@@ -47,7 +47,6 @@ def cnn_02(model_path, x_train, y_train, x_val, y_val, in_dim, out_dim, in_len,
                          axis=1)
 
     merged = Dense(256, activation="relu")(merged)
-    merged = Dropout(0.2)(merged)
     merged = Dense(1)(merged)
     output = Activation("sigmoid")(merged)
     model = Model(inputs=[tweet_input], outputs=[output])

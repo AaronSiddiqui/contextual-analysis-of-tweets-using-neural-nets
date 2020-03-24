@@ -7,7 +7,7 @@ from os import path
 from src.sentiment_analysis_models.utils import create_dir_if_nonexist, \
     create_embedding_matrix, create_vec_model, create_models_to_analyse
 from src.nlp.word2vec import W2V
-from src.nlp.doc2vec import D2V
+# from src.nlp.doc2vec import D2V
 from src.neural_networks.mlp import mlp_01
 from src.neural_networks.cnn import cnn_01, cnn_02
 from src.neural_networks.rnn import rnn_01
@@ -15,10 +15,13 @@ from src.preprocessing.reduce_data import find_feature_ratios, reduce_dataset
 from src.preprocessing.clean_data import clean_tweet
 from sklearn.model_selection import train_test_split
 
+
 def main():
     print("Creating Sentiment Analysis Models Using the Sentiment 140 Dataset")
 
+    # Switches to the base directory to I don't always have to type "../.."
     os.chdir("../..")
+    # Directories for the datasets and models
     sent140_dir = "datasets/sentiment140"
     sa_model_dir = "models/binary_sentiment_analysis"
 
@@ -38,15 +41,14 @@ def main():
         print("Dropping unnecessary features: id, date, query_string, user")
         df.drop(["id", "date", "query_string", "user"], axis=1, inplace=True)
 
+        # I felt 200,000 tweets was an appropriate amount for training without
+        # expending my computational resources
         n = 200000
         print("Reducing to " + str(n) + " entries")
         ratios = find_feature_ratios(df, "sentiment")
         df = reduce_dataset(df, "sentiment", ratios, n)
 
-        # Change all the positive values to 1 as opposed to 4
-        # Required for training the neural networks
-        df.loc[df["sentiment"] == 4, "sentiment"] = 1
-
+        # Create a
         print("Creating a new index column")
         df.reset_index(drop=True, inplace=True)
         df.index.name = "id"
@@ -72,12 +74,16 @@ def main():
         df.text.replace("", np.nan, inplace=True)
         df.dropna(inplace=True)
 
+        # Change all the positive values to 1 as opposed to 4
+        # Required for training the neural networks
+        df.loc[df["sentiment"] == 4, "sentiment"] = 1
+
         # Do this again because it was lost when null entries were dropped
         print("Creating a new index column")
         df.reset_index(drop=True, inplace=True)
         df.index.name = "id"
 
-        # Vec models have trouble processing the text if this isn't explicitly
+        # Word2Vec models have trouble processing the text if this isn't explicitly
         # set as string
         df.text = df.text.astype(str)
 
@@ -91,13 +97,17 @@ def main():
     x = df.text
     y = df.sentiment
 
+    # Random state constant to ensure the data is always split the same for
+    # testing
     RS = 12345
     x_train, x_val_test, y_train, y_val_test = \
         train_test_split(x, y, test_size=0.2, random_state=RS)
 
     x_val, x_test, y_val, y_test = \
-        train_test_split(x_val_test, y_val_test, test_size=0.5, random_state=RS)
+        train_test_split(x_val_test, y_val_test, test_size=0.5,
+                         random_state=RS)
 
+    # Some nlp paths and directories to be created
     nlp_dir = sa_model_dir + "/nlp"
     w2v_dir = nlp_dir + "/word2vec"
     w2v_cbow_path = w2v_dir + "/w2v_cbow.word2vec"
@@ -138,6 +148,8 @@ def main():
     # print(d2v_dm.wv.most_similar(word))
 
     print("\nCreating embedding matrices...")
+    # When creating the embedding matrices I will be using all the words from
+    # the Word2Vec models
     num_words = len(w2v_cbow.wv.vocab)
     # The maximum length of a tweet is 280 characters, therefore the maximum
     # number of words is 280/2 = 140
@@ -182,12 +194,18 @@ def main():
 
     nn_dir = sa_model_dir + "/neural_networks"
 
+    # List to store the models for evaluation
+    # Consists of tuples of the form (model_type, model)
     models = []
+    # Default neural network arguments
     nn_args = [x_train_seq, y_train, x_val_seq, y_val, num_words, vec_size,
                max_len]
 
     cnn_dir = nn_dir + "/cnn"
     create_dir_if_nonexist(cnn_dir)
+
+    # From here onwards, the various neural networks are created with basic
+    # embedding, Word2Vec CBOW and Word2Vec SG and added to the models list
 
     print("\nCreating CNN 01 models...")
     cnn_01_path = cnn_dir + "/cnn_01"
@@ -224,6 +242,7 @@ def main():
                                              rnn_01_path, rnn_01, nn_args)
     models.extend(rnn_01_models)
 
+    # Evaluates the accuracy on the test sets
     print("\nEvaluating models...")
     for m in models:
         loss, acc = m[1].evaluate(x_test_seq, y_test, verbose=0)

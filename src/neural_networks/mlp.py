@@ -3,7 +3,7 @@ from keras.layers import Dense, Flatten
 from keras.layers.embeddings import Embedding
 from src.neural_networks.train import train_nn
 
-"""Returns a basic ANN with embedding"""
+"""Returns a basic MLP with embedding"""
 
 
 def mlp_01(model_path, x_train, y_train, x_val, y_val, in_dim, out_dim, in_len,
