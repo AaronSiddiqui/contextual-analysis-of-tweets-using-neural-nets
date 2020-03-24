@@ -1,5 +1,4 @@
 from tqdm import tqdm
-from sklearn import utils
 from gensim.models.doc2vec import Doc2Vec, TaggedDocument
 import multiprocessing
 
@@ -7,7 +6,7 @@ import multiprocessing
 class TaggedCorpus:
     def __init__(self, text):
         self.text = text
-        self.sentences = [TaggedDocument(t.split(), str(i)) for i, t in enumerate(text)]
+        self.sentences = [TaggedDocument(t.split(), str(i)) for i, t in enumerate(tqdm(text))]
 
     def __iter__(self):
         for i, s in enumerate(self.text):
@@ -21,20 +20,18 @@ class D2V:
     def __init__(self, corpus, **opts):
         self.corpus = TaggedCorpus(corpus)
 
-    def create_model(self, dm=0, v_size=64, epochs=30, l_rate=0.002):
+    def create_model(self, model_path, dm=0, vec_size=64, window=2, min_count=2,
+                     epochs=10):
         default_opts = {"negative": 5,
-                        "min_count": 1,
-                        "workers": multiprocessing.cpu_count(),
-                        "alpha": 0.065,
-                        "min_alpha": 0.065}
+                        "workers": multiprocessing.cpu_count()}
 
-        model = Doc2Vec(dm=dm, vector_size=v_size, **default_opts)
+        model = Doc2Vec(dm=dm, vector_size=vec_size, window=window,
+                        min_count=min_count, **default_opts)
+
         model.build_vocab(self.corpus)
-
-        for _ in tqdm(range(epochs)):
-            model.train(utils.shuffle(self.corpus.to_array()),
-                        total_examples=len(self.corpus.to_array()),
-                        epochs=1)
-            model.min_alpha = model.alpha - l_rate
+        model.train(self.corpus.to_array(),
+                    total_examples=len(self.corpus.to_array()),
+                    epochs=epochs)
+        model.save(model_path)
 
         return model
