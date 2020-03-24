@@ -199,7 +199,7 @@ def main():
     models = []
     # Default neural network arguments
     nn_args = [x_train_seq, y_train, x_val_seq, y_val, num_words, vec_size,
-               max_len, "sigmoid"]
+               max_len, 1, "sigmoid", "binary_crossentropy"]
 
     cnn_dir = nn_dir + "/cnn"
     create_dir_if_nonexist(cnn_dir)
