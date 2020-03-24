@@ -1,4 +1,5 @@
 import pandas as pd
+from math import isclose
 
 """Finds and returns a dictionary of the ratios for the classes in a feature"""
 
@@ -20,8 +21,11 @@ def find_feature_ratios(df, feat):
 
 
 def reduce_dataset(df, feat, ratios, n):
-    if sum([v for v in ratios.values()]) != 1:
-        raise ValueError("Ratios must equal 1")
+    ratio_total = sum([v for v in ratios.values()])
+    # I used isclose because they can sometimes add up to a number extremely
+    # close but slightly off due to floating point error
+    if not isclose(ratio_total, 1):
+        raise ValueError("Ratios must equal 1:", ratio_total)
 
     reduced_dfs = []
 
