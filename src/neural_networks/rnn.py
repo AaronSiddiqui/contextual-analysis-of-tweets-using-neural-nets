@@ -1,18 +1,17 @@
 from keras.models import Sequential
-from keras.layers import Dense, LSTM, Bidirectional
+from keras.layers import Dense, LSTM
 from keras.layers.embeddings import Embedding
+from src.neural_networks.train import train_nn
+
+"""Returns a basic LSTM RNN with embedding"""
 
 
-def rnn_01(x_train_seq, y_train, x_val_seq, y_val, in_dim, out_dim, in_len,
-           emb_opts={}):
+def rnn_01(model_path, x_train, y_train, x_val, y_val, in_dim, out_dim, in_len,
+           emb_opts):
     model = Sequential()
     model.add(Embedding(in_dim, out_dim, input_length=in_len, **emb_opts))
-    model.add(Bidirectional(LSTM(128)))
+    model.add(LSTM(out_dim))
     model.add(Dense(256, activation="relu"))
     model.add(Dense(1, activation="sigmoid"))
 
-    model.compile(loss='binary_crossentropy', optimizer='adam',
-                  metrics=['accuracy'])
-
-    return model.fit(x_train_seq, y_train, validation_data=(x_val_seq, y_val),
-                     epochs=5, batch_size=64, verbose=2)
+    return train_nn(model, model_path, x_train, y_train, x_val, y_val)
