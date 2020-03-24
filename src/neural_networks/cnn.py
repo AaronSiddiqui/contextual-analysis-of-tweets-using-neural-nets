@@ -18,7 +18,6 @@ def cnn_01(model_path, x_train, y_train, x_val, y_val, input_dim, output_dim,
     model.add(GlobalMaxPooling1D())
     model.add(Dense(output_dim*2, activation="relu"))
     model.add(Dense(num_output_classes, activation=final_act_func))
-    print(model.summary())
 
     return train_nn(model, model_path, x_train, y_train, x_val, y_val, loss)
 
