@@ -12,8 +12,8 @@ from keras.models import Model
 df = pd.read_csv("../../datasets/sentiment140/sentiment140_clean.csv", index_col="id")
 df.text = df.text.astype(str)
 
-model_cbow = KeyedVectors.load("../../models/nlp/w2v_model_cbow.word2vec")
-model_sg = KeyedVectors.load("../../models/nlp/w2v_model_sg.word2vec")
+model_cbow = KeyedVectors.load("../../models/sentiment_analysis/nlp/word2vec/w2v_cbow.word2vec")
+model_sg = KeyedVectors.load("../../models/sentiment_analysis/nlp/word2vec/w2v_sg.word2vec")
 # model_dbow = KeyedVectors.load("../../models/nlp/d2v_model_dbow.doc2vec")
 # model_dm = KeyedVectors.load("../../models/nlp/d2v_model_dm.doc2vec")
 
@@ -40,7 +40,7 @@ x_validation, x_test, y_validation, y_test = \
                      test_size=0.5, random_state=SEED)
 
 max_len = 140
-num_words = 50000
+num_words = 65000
 
 tokenizer = Tokenizer(num_words=num_words)
 tokenizer.fit_on_texts(x_train)
@@ -84,15 +84,14 @@ print(len(embedding_matrix))
 # model_ann.fit(x_train_seq, y_train, validation_data=(x_val_seq, y_validation), epochs=5, batch_size=64, verbose=2)
 # model_ann.save("../../models/neural_networks/emb_ann.h5")
 #
-model_ann = Sequential()
-model_ann.add(Embedding(num_words, 128, weights=[embedding_matrix], input_length=max_len, trainable=True))
-model_ann.add(Flatten())
-model_ann.add(Dense(256, activation='relu'))
-model_ann.add(Dense(1, activation='sigmoid'))
-model_ann.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
-model_ann.fit(x_train_seq, y_train, validation_data=(x_val_seq, y_validation), epochs=5, batch_size=64, verbose=2)
-model_ann.save("../../models/neural_networks/w2v_ann.h5")
-
+# model_ann = Sequential()
+# model_ann.add(Embedding(num_words, 128, weights=[embedding_matrix], input_length=max_len, trainable=True))
+# model_ann.add(Flatten())
+# model_ann.add(Dense(256, activation='relu'))
+# model_ann.add(Dense(1, activation='sigmoid'))
+# model_ann.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
+# model_ann.fit(x_train_seq, y_train, validation_data=(x_val_seq, y_validation), epochs=5, batch_size=64, verbose=2)
+# model_ann.save("../../models/neural_networks/w2v_ann.h5")
 
 
 # model_cnn = Sequential()
@@ -143,23 +142,25 @@ model_ann.save("../../models/neural_networks/w2v_ann.h5")
 
 
 
-# tweet_input = Input(shape=(140,), dtype='int32')
-#
-# tweet_encoder = Embedding(num_words, 128, weights=[embedding_matrix], input_length=140, trainable=True)(tweet_input)
-# bigram_branch = Conv1D(filters=100, kernel_size=2, padding='valid', activation='relu', strides=1)(tweet_encoder)
-# bigram_branch = GlobalMaxPooling1D()(bigram_branch)
-# trigram_branch = Conv1D(filters=100, kernel_size=3, padding='valid', activation='relu', strides=1)(tweet_encoder)
-# trigram_branch = GlobalMaxPooling1D()(trigram_branch)
-# fourgram_branch = Conv1D(filters=100, kernel_size=4, padding='valid', activation='relu', strides=1)(tweet_encoder)
-# fourgram_branch = GlobalMaxPooling1D()(fourgram_branch)
-# merged = concatenate([bigram_branch, trigram_branch, fourgram_branch], axis=1)
-#
-# merged = Dense(256, activation='relu')(merged)
-# merged = Dropout(0.2)(merged)
-# merged = Dense(1)(merged)
-# output = Activation('sigmoid')(merged)
-# model = Model(inputs=[tweet_input], outputs=[output])
-# model.compile(loss='binary_crossentropy',
-#                   optimizer='adam',
-#                   metrics=['accuracy'])
-# model.fit(x_train_seq, y_train, validation_data=(x_val_seq, y_validation), batch_size=64, epochs=5, verbose=2)
+tweet_input = Input(shape=(140,), dtype='int32')
+
+tweet_encoder = Embedding(num_words, 128, weights=[embedding_matrix], input_length=140, trainable=True)(tweet_input)
+bigram_branch = Conv1D(filters=100, kernel_size=2, padding='valid', activation='relu', strides=1)(tweet_encoder)
+bigram_branch = GlobalMaxPooling1D()(bigram_branch)
+trigram_branch = Conv1D(filters=100, kernel_size=3, padding='valid', activation='relu', strides=1)(tweet_encoder)
+trigram_branch = GlobalMaxPooling1D()(trigram_branch)
+fourgram_branch = Conv1D(filters=100, kernel_size=4, padding='valid', activation='relu', strides=1)(tweet_encoder)
+fourgram_branch = GlobalMaxPooling1D()(fourgram_branch)
+merged = concatenate([bigram_branch, trigram_branch, fourgram_branch], axis=1)
+
+merged = Dense(256, activation='relu')(merged)
+merged = Dropout(0.2)(merged)
+merged = Dense(1)(merged)
+output = Activation('sigmoid')(merged)
+model = Model(inputs=[tweet_input], outputs=[output])
+
+model.summary()
+model.compile(loss='binary_crossentropy',
+                  optimizer='adam',
+                  metrics=['accuracy'])
+model.fit(x_train_seq, y_train, validation_data=(x_val_seq, y_validation), batch_size=64, epochs=5, verbose=2)
