@@ -4,19 +4,15 @@ from keras.layers.embeddings import Embedding
 from keras.models import Model, Sequential
 from src.neural_networks.train import train_nn
 
-"""Returns an 1D CNN with embedding that I designed"""
+"""Returns a basic 1D CNN with embedding"""
 
 
 def cnn_01(model_path, x_train, y_train, x_val, y_val, in_dim, out_dim, in_len,
            ker_size, emb_opts):
     model = Sequential()
     model.add(Embedding(in_dim, out_dim, input_length=in_len, **emb_opts))
-    model.add(Conv1D(filters=out_dim, kernel_size=ker_size, padding="valid",
+    model.add(Conv1D(filters=128, kernel_size=ker_size, padding="valid",
                      activation="relu", strides=1))
-    model.add(Dense(256, activation="relu"))
-    model.add(Conv1D(filters=out_dim, kernel_size=ker_size, padding="valid",
-                     activation="relu", strides=1))
-    model.add(Dense(256, activation="relu"))
     model.add(GlobalMaxPooling1D())
     model.add(Dense(256, activation="relu"))
     model.add(Dense(1, activation="sigmoid"))
