@@ -55,8 +55,8 @@ def clean_tweet(tweet, rem_ellipses=True, rem_urls=True, rem_mentions=True,
                    "i'm": "i am", " he's": " he is", " she's": " she is",
                    "'ll": " will", "'d": " would", "&": " and ",
                    "%": " percent"}
-        for k, v in abbrevs.items():
-            tweet = re.sub(r"" + k, v, tweet)
+        for abr, exp in abbrevs.items():
+            tweet = re.sub(r"" + abr, exp, tweet)
 
     # Removes punctuation
     if rem_punc:
