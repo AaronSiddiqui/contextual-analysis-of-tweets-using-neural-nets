@@ -1,12 +1,13 @@
-from html import unescape
 import re
 import random
 import string
+from html import unescape
+
+"""Parses, cleans and returns the tweet"""
 
 
-"""Parses and cleans the tweet"""
-def clean_tweet(tweet, rem_ellipsis=True, rem_urls=True, rem_mentions=True,
-                rem_texemojis=True, repl_mentions=False, rem_htags=True,
+def clean_tweet(tweet, rem_ellipses=True, rem_urls=True, rem_mentions=True,
+                rem_emoticons=True, repl_mentions=False, rem_htags=True,
                 dec_html=True, conv_lcase=True, expand_abbrev=True,
                 rem_punc=True, repl_nonprint_chars=True, rem_wspace=True):
     # The tweet can either remove @mentions or replace them
@@ -16,7 +17,7 @@ def clean_tweet(tweet, rem_ellipsis=True, rem_urls=True, rem_mentions=True,
     # Remove ellipsis i.e. "..."
     # Started with this as there is often problems with processing ellipses, so
     # it's best to remove them first
-    if rem_ellipsis:
+    if rem_ellipses:
         tweet = re.sub(r"\.{2,}", " ", tweet)
 
     # Remove the urls
@@ -30,8 +31,8 @@ def clean_tweet(tweet, rem_ellipsis=True, rem_urls=True, rem_mentions=True,
         names = ["Tom", "John", "Emma", "Sam", "Rachel"]
         tweet = re.sub(r"@\S+", " " + random.choice(names) + " ", tweet)
 
-    # Remove basic text-based emojis
-    if rem_texemojis:
+    # Remove emoticons
+    if rem_emoticons:
         tweet = re.sub(r" [:;Xx=][038DdPpSsL<>/\\\(\)\[\]\{\}\-]{1,2}", " ",
                        tweet)
 
@@ -60,7 +61,7 @@ def clean_tweet(tweet, rem_ellipsis=True, rem_urls=True, rem_mentions=True,
     # Removes punctuation
     if rem_punc:
         tweet = re.sub(r"[" + string.punctuation + "]", " ", tweet)
-        #tweet = tweet.translate(str.maketrans("", "", string.punctuation))
+        # tweet = tweet.translate(str.maketrans("", "", string.punctuation))
 
     # Replaces not printable character with "?" i.e. UTF-8 BOM characters
     if repl_nonprint_chars:
