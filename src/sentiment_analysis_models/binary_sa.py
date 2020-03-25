@@ -17,14 +17,14 @@ from sklearn.model_selection import train_test_split
 
 
 def main():
-    print("Creating Binary Sentiment Analysis Model Using the Sentiment 140 "
+    print("Creating the Binary Sentiment Analysis Model Using the Sentiment 140 "
           "Dataset")
 
     # Switches to the base directory to I don't always have to type "../.."
     os.chdir("../..")
     # Directories for the datasets and models
     sent140_dir = "datasets/sentiment140"
-    sa_model_dir = "models/binary_sentiment_analysis"
+    binary_sa_model_dir = "models/binary_sentiment_analysis"
 
     original_path = sent140_dir + "/sentiment140_original.csv"
     reduced_path = sent140_dir + "/sentiment140_reduced.csv"
@@ -109,7 +109,7 @@ def main():
                          random_state=RS)
 
     # Some nlp paths and directories to be created
-    nlp_dir = sa_model_dir + "/nlp"
+    nlp_dir = binary_sa_model_dir + "/nlp"
     w2v_dir = nlp_dir + "/word2vec"
     w2v_cbow_path = w2v_dir + "/w2v_cbow.word2vec"
     w2v_sg_path = w2v_dir + "/w2v_sg.word2vec"
@@ -193,7 +193,7 @@ def main():
     #                                             vec_size,
     #                                             tokenizer.word_index)
 
-    nn_dir = sa_model_dir + "/neural_networks"
+    nn_dir = binary_sa_model_dir + "/neural_networks"
 
     # List to store the models for evaluation
     # Consists of tuples of the form (model_type, model)
