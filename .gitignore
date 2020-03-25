@@ -1,5 +1,13 @@
-.idea 
+# IDE folders
+.idea
 *__pycache__*
+
+# directory that stores the secret credentials
+credentials/
+
+# reduced and cleaned datasets
 *_reduced*
 *_clean*
+
+# directory that stores the completed models
 models/
