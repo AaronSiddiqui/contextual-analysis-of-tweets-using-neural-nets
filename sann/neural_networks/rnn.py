@@ -1,7 +1,7 @@
 from keras.models import Sequential
 from keras.layers import Dense, LSTM
 from keras.layers.embeddings import Embedding
-from src.neural_networks.train import train_nn
+from sann.neural_networks.train import train_nn
 
 """Returns a basic LSTM RNN with embedding"""
 

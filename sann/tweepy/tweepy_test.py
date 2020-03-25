@@ -1,5 +1,5 @@
 import tweepy as tp
-from src.tweepy.tweepy_credentials import *
+from sann.tweepy.tweepy_credentials import *
 
 # Creates the OAuth authentication request to use the API
 auth = tp.OAuthHandler(CONSUMER_KEY, CONSUMER_SECRET)
