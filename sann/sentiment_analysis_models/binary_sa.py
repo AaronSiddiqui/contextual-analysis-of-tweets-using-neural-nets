@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import pickle
 import os
 from keras.preprocessing.text import Tokenizer
 from keras.preprocessing.sequence import pad_sequences
@@ -162,6 +163,13 @@ def main():
           "integers) with the training data")
     tokenizer = Tokenizer(num_words=num_words)
     tokenizer.fit_on_texts(x_train)
+
+    tokenizer_path = "models/tokenizers/"
+    create_dir_if_nonexist(tokenizer_path)
+
+    print("Saving the tokenizer: ")
+    with open(tokenizer_path + "bsa_tokenizer.pickle", "wb") as handle:
+        pickle.dump(tokenizer, handle)
 
     print("Padding training, testing and validation data")
     sequences_train = tokenizer.texts_to_sequences(x_train)
