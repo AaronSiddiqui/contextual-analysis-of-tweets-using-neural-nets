@@ -11,3 +11,6 @@ credentials/
 
 # directory that stores the completed models
 models/
+
+# directory that stores the logs
+logs/
