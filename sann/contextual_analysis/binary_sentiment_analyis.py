@@ -17,7 +17,7 @@ from sann.preprocessing.clean_data import clean_tweet
 from sklearn.model_selection import train_test_split
 
 
-def main():
+if __name__ == "__main__":
     print("Creating the Binary Sentiment Analysis Model Using the Sentiment 140 "
           "Dataset")
 
@@ -277,7 +277,3 @@ def main():
     # plt.savefig(pic_dir + "roc_curve_cnn_01_vs_cnn_02_bsa.png")
     #
     # plt.show()
-
-
-if __name__ == "__main__":
-    main()

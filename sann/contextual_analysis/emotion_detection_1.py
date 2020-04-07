@@ -17,7 +17,7 @@ from sann.preprocessing.clean_data import clean_tweet
 from sklearn.model_selection import train_test_split
 
 
-def main():
+if __name__ == "__main__":
     print("Creating the Emotion Detection Models Using the Emotion "
           "Classification Dataset")
 
@@ -232,7 +232,3 @@ def main():
     for m in models:
         loss, acc = m[1].evaluate(x_test_seq, y_test, verbose=0)
         print("Model:", m[0], "\tAccuracy:", acc)
-
-
-if __name__ == "__main__":
-    main()
