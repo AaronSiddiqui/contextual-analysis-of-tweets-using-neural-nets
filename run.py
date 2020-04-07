@@ -1,20 +1,62 @@
-import pickle
-import tweepy as tp
 import constants as ct
+import numpy as np
+import pickle
+import tensorflow as tf
+import tweepy as tp
 from flask import Flask, render_template, request
 from keras.models import load_model
 from keras.preprocessing.sequence import pad_sequences
 from sann.preprocessing.clean_data import clean_tweet
 
+# Fix for this error related to loading models:
+# "Failed to get convolution algorithm. This is probably because cuDNN failed
+# to initialize, so try looking to see if a warning log message was printed
+# above"
+physical_devices = tf.config.experimental.list_physical_devices("GPU")
+tf.config.experimental.set_memory_growth(physical_devices[0], True)
+
 app = Flask(__name__)
 
-binary_sa_model = load_model(ct.PROJ_DIR + "models/binary_sentiment_analysis/"
-                                           "neural_networks/""cnn/"
-                                           "cnn_01_w2v_sg.h5")
-binary_sa_tokenizer = None
 
-with open(ct.PROJ_DIR + "models/tokenizers/bsa_tokenizer.pickle", "rb") as handle:
-    binary_sa_tokenizer = pickle.load(handle)
+def load_models():
+    global binary_sa_model, binary_sa_tokenizer
+
+    binary_sa_model = load_model(ct.PROJ_DIR +
+                                 "models/binary_sentiment_analysis/"
+                                 "neural_networks/cnn/cnn_01_w2v_sg.h5")
+
+    with open(ct.PROJ_DIR + "models/tokenizers/binary_sa_tokenizer.pickle",
+              "rb") as handle:
+        binary_sa_tokenizer = pickle.load(handle)
+
+    global emotion_detection_model, emotion_detection_tokenizer
+
+    emotion_detection_model = load_model(ct.PROJ_DIR +
+                                        "models/emotion_detection_2/"
+                                        "neural_networks/cnn/cnn_01_emb.h5")
+
+    with open(ct.PROJ_DIR + "models/tokenizers/emotion_detection_2_tokenizer"
+                            ".pickle", "rb") as handle:
+        emotion_detection_tokenizer = pickle.load(handle)
+
+
+def predict(cln_twts, tokenizer, model, decoder, num_classes):
+    seq = tokenizer.texts_to_sequences(cln_twts)
+    padded_seq = pad_sequences(seq, maxlen=140)
+
+    preds = model.predict_classes(padded_seq)
+
+    results = []
+    num_each_class = [0] * num_classes
+
+    for pred in preds:
+        if type(pred) is np.ndarray:
+            pred = pred[0]
+
+        results.append(decoder[pred])
+        num_each_class[pred] += 1
+
+    return results, num_each_class
 
 
 @app.route("/")
@@ -34,55 +76,59 @@ def results():
     api = tp.API(auth)
 
     for status in tp.Cursor(api.user_timeline, tweet_mode="extended",
-                            id=username).items():
-        if count >= num_tweets:
-            break
+                            id=username).items(num_tweets):
+        # if count >= num_tweets:
+        #     break
 
-        if not hasattr(status, "retweeted_status"):
-            tweets.append({
-                "dirty_text": status.full_text,
-                "clean_text": "",
-                "no_clean_text": False,
-                "date": status.created_at,
-                "id": status.id,
-                "binary_sentiment": "",
-                "fine_grained_sentiment": "",
-                "emotion": ""
-            })
-            count += 1
+        # if not hasattr(status, "retweeted_status"):
+        tweets.append({
+            "dirty_text": status.full_text,
+            "clean_text": "",
+            "no_clean_text": False,
+            "date": status.created_at,
+            "id": status.id,
+            "binary_sentiment": "N/A",
+            "emotion": "N/A"
+        })
+        count += 1
 
-    for twt in tweets:
-        cln_twt = clean_tweet(twt["dirty_text"], rem_htags=False)
+    num_sentiments, num_emotions = [], []
 
-        if not cln_twt.strip():
-            twt["no_clean_text"] = True
+    if tweets:
+        for twt in tweets:
+            print(twt["dirty_text"])
+            cln_twt = clean_tweet(twt["dirty_text"], rem_htags=False)
 
-        twt["clean_text"] = cln_twt
+            if not cln_twt.strip():
+                twt["no_clean_text"] = True
 
-    clean_tweets = [twt["clean_text"] for twt in tweets]
+            twt["clean_text"] = cln_twt
 
-    seq = binary_sa_tokenizer.texts_to_sequences(clean_tweets)
-    padded_seq = pad_sequences(seq, maxlen=140)
+        clean_tweets = [twt["clean_text"] for twt in tweets]
 
-    preds = binary_sa_model.predict_classes(padded_seq)
-    results = []
+        binary_sa_results, num_sentiments = \
+             predict(clean_tweets, binary_sa_tokenizer, binary_sa_model,
+                     ct.BINARY_SA_DECODER, 2)
 
-    for pred in preds:
-        results.append(ct.BINARY_SA_ENCODER[pred[0]])
+        emotion_detection_results, num_emotions = \
+            predict(clean_tweets, emotion_detection_tokenizer,
+                    emotion_detection_model, ct.EMOTION_DECODER, 7)
 
-    for i in range(len(tweets)):
-        twt = tweets[i]
+        for i in range(len(tweets)):
+            twt = tweets[i]
 
-        if tweets[i]["no_clean_text"] is False:
-            twt["binary_sentiment"] = results[i]
-            twt["fine_grained_sentiment"] = results[i]
-            twt["emotion"] = results[i]
+            if tweets[i]["no_clean_text"] is False:
+                twt["binary_sentiment"] = binary_sa_results[i]
+                twt["emotion"] = emotion_detection_results[i]
 
-    for twt in tweets:
-        print(twt["dirty_text"], ":", twt["binary_sentiment"])
-
-    return render_template("results.html")
+    return render_template("results.html", username=username,
+                           num_sentiments=num_sentiments,
+                           num_emotions=num_emotions, tweets=tweets)
 
 
 if __name__ == "__main__":
+    print("Loading the models...")
+    load_models()
+
+    print("Starting the Flask server...")
     app.run(debug=True)
