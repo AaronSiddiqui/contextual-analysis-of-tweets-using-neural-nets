@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 import pickle
-import os
+from constants import PROJ_DIR
 from keras.preprocessing.text import Tokenizer
 from keras.preprocessing.sequence import pad_sequences
 from os import path
@@ -21,11 +21,9 @@ def main():
     print("Creating the Binary Sentiment Analysis Model Using the Sentiment 140 "
           "Dataset")
 
-    # Switches to the base directory to I don't always have to type "../.."
-    os.chdir("../..")
     # Directories for the datasets and models
-    sent140_dir = "datasets/sentiment140"
-    binary_sa_model_dir = "models/binary_sentiment_analysis"
+    sent140_dir = PROJ_DIR + "datasets/sentiment140"
+    binary_sa_model_dir = PROJ_DIR + "models/binary_sentiment_analysis"
 
     original_path = sent140_dir + "/sentiment140_original.csv"
     reduced_path = sent140_dir + "/sentiment140_reduced.csv"
@@ -168,7 +166,7 @@ def main():
     create_dir_if_nonexist(tokenizer_path)
 
     print("Saving the tokenizer: ")
-    with open(tokenizer_path + "bsa_tokenizer.pickle", "wb") as handle:
+    with open(tokenizer_path + "binary_sa_tokenizer.pickle", "wb") as handle:
         pickle.dump(tokenizer, handle)
 
     print("Padding training, testing and validation data")
@@ -256,6 +254,29 @@ def main():
     for m in models:
         loss, acc = m[1].evaluate(x_test_seq, y_test, verbose=0)
         print("Model:", m[0], "\tAccuracy:", acc)
+
+    # from sklearn.metrics import roc_curve, auc
+    # import matplotlib.pyplot as plt
+    #
+    # cnn_01_res = models[0][1].predict(x_test_seq)
+    # cnn_02_res = models[3][1].predict(x_test_seq)
+    # cnn_01_fpr, cnn_01_tpr, cnn_01_threshold = roc_curve(y_test, cnn_01_res)
+    # cnn_01_roc_auc = auc(cnn_01_fpr, cnn_01_tpr)
+    # cnn_02_fpr, cnn_02_tpr, cnn_02_threshold = roc_curve(y_test, cnn_02_res)
+    # cnn_02_roc_auc = auc(cnn_02_fpr, cnn_02_tpr)
+    #
+    # plt.plot(cnn_01_fpr, cnn_01_tpr, label='CNN 01 with Basic Embedding (Area = %0.3f)' % cnn_01_roc_auc, linewidth=2)
+    # plt.plot(cnn_02_fpr, cnn_02_tpr, label='CNN 02 with Basic Embedding (Area = %0.3f)' % cnn_02_roc_auc, linewidth=2)
+    # plt.plot([0, 1], [0, 1], 'k--', linewidth=2)
+    # plt.xlabel('False Positive Rate')
+    # plt.ylabel('True Positive Rate')
+    # plt.title('ROC Curve of CNN 01 vs CNN 02 for Binary Sentiment Analysis')
+    # plt.legend()
+    #
+    # pic_dir = "C:/Users/aaron/Dropbox/Final Year Project/figures/results/"
+    # plt.savefig(pic_dir + "roc_curve_cnn_01_vs_cnn_02_bsa.png")
+    #
+    # plt.show()
 
 
 if __name__ == "__main__":

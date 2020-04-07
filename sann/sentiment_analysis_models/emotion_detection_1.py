@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 import pickle
-import os
+from constants import PROJ_DIR, EMOTION_ENCODER
 from keras.preprocessing.text import Tokenizer
 from keras.preprocessing.sequence import pad_sequences
 from keras.utils import to_categorical
@@ -21,11 +21,9 @@ def main():
     print("Creating the Emotion Detection Models Using the Emotion "
           "Classification Dataset")
 
-    # Switches to the base directory to I don't always have to type "../.."
-    os.chdir("../..")
     # Directories for the datasets and models
-    emotion_classification_dir = "datasets/emotion_classification"
-    ed_model_dir = "models/emotion_detection"
+    emotion_classification_dir = PROJ_DIR + "datasets/emotion_classification"
+    ed_model_dir = PROJ_DIR + "models/emotion_detection_1"
 
     original_path = emotion_classification_dir + "/emotion_classification_original.csv"
     reduced_path = emotion_classification_dir + "/emotion_classification_reduced.csv"
@@ -66,10 +64,7 @@ def main():
         # Emotions are currently represented as strings. These need to be
         # encoded to ints so that they can be trained in the neural network
         print("Encode the strings with ints for the feature emotions")
-        emotion_as_ints = {"joy": 0, "love": 1, "surprise": 2, "fear": 3,
-                           "anger": 4, "sadness": 5}
-
-        for cls, num in emotion_as_ints.items():
+        for cls, num in EMOTION_ENCODER.items():
             df.loc[df["emotions"] == cls, "emotions"] = num
 
         print("Cleaning the data")
@@ -158,7 +153,8 @@ def main():
     create_dir_if_nonexist(tokenizer_path)
 
     print("Saving the tokenizer: ")
-    with open(tokenizer_path + "bsa_tokenizer.pickle", "wb") as handle:
+    with open(tokenizer_path + "emotion_detection_1_tokenizer.pickle", "wb") as \
+            handle:
         pickle.dump(tokenizer, handle)
 
     print("Padding training, testing and validation data")
