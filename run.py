@@ -77,26 +77,25 @@ def results():
 
     for status in tp.Cursor(api.user_timeline, tweet_mode="extended",
                             id=username).items(num_tweets):
-        # if count >= num_tweets:
-        #     break
+        if count >= num_tweets:
+            break
 
-        # if not hasattr(status, "retweeted_status"):
-        tweets.append({
-            "dirty_text": status.full_text,
-            "clean_text": "",
-            "no_clean_text": False,
-            "date": status.created_at,
-            "id": status.id,
-            "binary_sentiment": "N/A",
-            "emotion": "N/A"
-        })
-        count += 1
+        if not hasattr(status, "retweeted_status"):
+            tweets.append({
+                "dirty_text": status.full_text,
+                "clean_text": "",
+                "no_clean_text": False,
+                "date": status.created_at,
+                "id": status.id,
+                "binary_sentiment": "N/A",
+                "emotion": "N/A"
+            })
+            count += 1
 
     num_sentiments, num_emotions = [], []
 
     if tweets:
         for twt in tweets:
-            print(twt["dirty_text"])
             cln_twt = clean_tweet(twt["dirty_text"], rem_htags=False)
 
             if not cln_twt.strip():
