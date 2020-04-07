@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
-import numpy as np
 import pandas as pd
+from wordcloud import WordCloud
 
 directory = "../../datasets/sentiment140/"
 
@@ -10,41 +10,44 @@ df = pd.read_csv(directory + "sentiment140_reduced.csv", index_col="id")
 df['length'] = [len(t) for t in df.text]
 
 # Shows a box plot of the length of the tweets
-fig, ax = plt.subplots(figsize=(5, 5))
 plt.boxplot(df.length)
-plt.show()
+plt.ylabel("Number of Characters")
+plt.title("Length of Tweets in Reduced Dataset for Binary Sentiment Analysis")
+plt.legend()
 
-# Prints the first 10 tweets that are greater than 140 characters
-df[df.length > 140].head(10)
-
-# Prints examples of each type of tweet that is cleaned
+# Prints examples of each type of tweet that isn't cleaned
 print("Before cleaning...")
 print("URL Example:", df.text[0])
 print("@mention Example:", df.text[343])
 print("Hashtag Example:", df.text[175])
 print("HTML Encoding Example:", df.text[279])
-print("UTF-8 BOM Example:", df.text[226])
-
+print()
 
 df = pd.read_csv(directory + "sentiment140_clean.csv", index_col="id")
 
-print(df.head())
+# Prints examples of each type of tweet that is cleaned
+print("After cleaning...")
+print("URL Example:", df.text[0])
+print("@mention Example:", df.text[340])
+print("Hashtag Example:", df.text[175])
+print("HTML Encoding Example:", df.text[279])
 
-print()
-print(df.info())
+# Creates a word cloud for the sentiment 140 dataset
+neg_tweets = df[df.sentiment == 0]
+neg_string = []
 
-print()
-print(df[df.isnull().any(axis=1)].head())
+for t in neg_tweets.text:
+    neg_string.append(t)
 
-print()
-print(np.sum(df.isnull().any(axis=1)))
+neg_string = pd.Series(neg_string).str.cat(sep=' ')
 
-print()
-print(df.isnull().any(axis=0))
+wordcloud = WordCloud(width=1600, height=800,max_font_size=200).generate(neg_string)
+plt.figure(figsize=(12,10))
+plt.imshow(wordcloud, interpolation="bilinear")
+plt.axis("off")
+plt.show()
 
-df.dropna(inplace=True)
-df.reset_index(drop=True, inplace=True)
-df.index.name = "id"
+pic_dir = "C:/Users/aaron/Dropbox/Final Year Project/figures/data_processing/"
+plt.savefig(pic_dir + "wordcloud_bsa.png")
 
-print()
-print(df.head())
+plt.show()
