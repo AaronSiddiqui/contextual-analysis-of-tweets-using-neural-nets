@@ -1,6 +1,6 @@
 from keras.layers import Dense, Conv1D, GlobalMaxPooling1D, Input, Activation,\
     concatenate
-from keras.layers.embeddings import Embedding
+from keras.layers import Embedding
 from keras.models import Model, Sequential
 from sann.neural_networks.train import train_nn
 
@@ -28,7 +28,7 @@ def cnn_01(model_path, x_train, y_train, x_val, y_val, input_dim, output_dim,
 
 def cnn_02(model_path, x_train, y_train, x_val, y_val, input_dim, output_dim,
            input_len, num_output_classes, final_act_func, loss, embedding_opts):
-    tweet_input = Input(shape=(input_dim,), dtype="int32")
+    tweet_input = Input(shape=(input_len,), dtype="int32")
 
     tweet_encoder = Embedding(input_dim, output_dim, input_length=input_len,
                               **embedding_opts)(tweet_input)
