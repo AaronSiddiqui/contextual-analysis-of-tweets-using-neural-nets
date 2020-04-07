@@ -6,17 +6,18 @@ verify_ssl = true
 [dev-packages]
 
 [packages]
-tensorflow-gpu = "*"
 numpy = "*"
 pandas = "*"
 matplotlib = "*"
-tweepy = "*"
 gensim = "*"
 sklearn = "*"
-keras = "*"
 nltk = "*"
 tqdm = "*"
 flask = "*"
+tweepy = "*"
+keras = "*"
+tensorflow = "*"
+wordcloud = "*"
 
 [requires]
 python_version = "3.7"

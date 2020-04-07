@@ -5,7 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-        <link rel="stylesheet" type="text/css" href="static/style.css" media="screen" />
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}" media="screen" />
         <title>SANN</title>
     </head>
     <body class="bg-dark text-warning">
@@ -17,15 +17,15 @@
 
                         <hr>
 
-                        <form class="form-inline md-form mr-auto justify-content-center">
+                        <form class="form-inline md-form mr-auto justify-content-center" action="{{ url_for('results') }}" method="post">
                             <div class="input-group">
                                 <div class="input-group-prepend">
                                     <span class="input-group-text" id="basic-addo1">@</span>
                                 </div>
-                                <input class="form-control mr-sm-2 w-25" type="text" placeholder="Twitter Username">
+                                <input class="form-control mr-sm-2 w-25" type="text" name="twitter_username" placeholder="Twitter Username">
                             </div>
 
-                            <input class="form-control mr-sm-2 w-25" type="text" placeholder="Number of Recent Tweets">
+                            <input class="form-control mr-sm-2 w-25" type="text" name="num_recent_tweets" placeholder="Number of Recent Tweets">
                             <button class="btn btn-outline-warning" type="submit">Search</button>
                         </form>
 
