@@ -1,54 +1,54 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}" media="screen" />
-        <title>SANN</title>
-    </head>
-    <body class="bg-dark text-warning">
-        <div style="height: 85vh">
-            <div class="container h-100">
-                <div class="row h-100">
-                    <div class="my-auto text-center">
-                        <h1 class="display-3"><i>SANN</i></h1>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}" media="screen" />
+    <title>SANN</title>
+  </head>
+  <body class="bg-dark text-warning">
+  <div style="height: 85vh">
+    <div class="container h-100">
+      <div class="row h-100">
+        <div class="my-auto text-center">
+          <h1 class="display-3"><i>SANN</i></h1>
 
-                        <hr>
+          <hr>
 
-                        <form class="form-inline md-form mr-auto justify-content-center" action="{{ url_for('results') }}" method="post">
-                            <div class="input-group">
-                                <div class="input-group-prepend">
-                                    <span class="input-group-text" id="basic-addo1">@</span>
-                                </div>
-                                <input class="form-control mr-sm-2 w-25" type="text" name="twitter_username" placeholder="Twitter Username">
-                            </div>
-
-                            <input class="form-control mr-sm-2 w-25" type="text" name="num_recent_tweets" placeholder="Number of Recent Tweets">
-                            <button class="btn btn-outline-warning" type="submit">Search</button>
-                        </form>
-
-                        <hr>
-
-                        <div class="lead">
-                            <p>
-                            SANN (Sentiment Analysis with Neural Networks) is a simple tool that passes a Twitter user's most recent
-                            tweets through expertly developed models to determine if they have a "sentiment" about them:
-                            </p>
-                            <ul class="list-unstyled">
-                                <li><b>Binary Sentiment:</b> Positive or negative</li>
-                                <li><b>Fine-Grained Sentiment:</b> Very positive, slightly positive, neutral, slightly negative or very negative</li>
-                                <li><b>Emotion Detection:</b> Joy, love, surprise, fear or sadness</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
+          <form class="form-inline md-form mr-auto justify-content-center" action="{{ url_for('results') }}" method="post">
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <span class="input-group-text" id="basic-addo1">@</span>
+              </div>
+              <input class="form-control mr-sm-2 w-25" type="text" name="twitter_username" placeholder="Twitter Username">
             </div>
-        </div>
 
-        <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
-        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
-    </body>
+            <input class="form-control mr-sm-2 w-25" type="text" name="num_recent_tweets" placeholder="Number of Recent Tweets">
+            <button class="btn btn-outline-warning" type="submit">Search</button>
+          </form>
+
+          <hr>
+
+          <div class="lead">
+            <p>
+              SANN (Sentiment Analysis with Neural Networks) is a simple tool that passes a Twitter user's most recent
+              tweets through expertly developed models to determine if they have a "sentiment" about them:
+            </p>
+            <ul class="list-unstyled">
+              <li><b>Binary Sentiment:</b> Positive or negative</li>
+              <li><b>Fine-Grained Sentiment:</b> Very positive, slightly positive, neutral, slightly negative or very negative</li>
+              <li><b>Emotion Detection:</b> Joy, love, surprise, fear or sadness</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+  </body>
 </html>
