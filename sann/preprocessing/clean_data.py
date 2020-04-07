@@ -20,6 +20,10 @@ def clean_tweet(tweet, rem_ellipses=True, rem_urls=True, rem_mentions=True,
     if rem_ellipses:
         tweet = re.sub(r"\.{2,}", " ", tweet)
 
+    # Removes non printable characters e.g. UTF-8 BOM characters and emojis
+    if repl_nonprint_chars:
+        tweet = re.sub(r"[^" + string.printable + "]", " ", tweet)
+
     # Remove the urls
     if rem_urls:
         tweet = re.sub(r"((https?:)|(www.))\S+", " ", tweet)
@@ -62,12 +66,6 @@ def clean_tweet(tweet, rem_ellipses=True, rem_urls=True, rem_mentions=True,
     if rem_punc:
         tweet = re.sub(r"[" + string.punctuation + "]", " ", tweet)
         # tweet = tweet.translate(str.maketrans("", "", string.punctuation))
-
-    # Replaces not printable character with "?" i.e. UTF-8 BOM characters
-    if repl_nonprint_chars:
-        for char in tweet:
-            if char not in string.printable:
-                tweet = tweet.replace(char, "?")
 
     # Removes whitespace
     if rem_wspace:
