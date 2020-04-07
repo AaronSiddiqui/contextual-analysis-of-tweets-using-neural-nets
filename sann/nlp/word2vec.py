@@ -15,7 +15,7 @@ class W2V:
     """Creates and saves a model with some default arguments"""
 
     def create_model(self, model_path, sg=0, size=64, window=2, min_count=2,
-                     epochs=10):
+                     epochs=30):
         # Uses negative sampling to reduce training time because only a small
         # percentage of weights are modified, opposed to all of them
         # Also uses all the cpu's cores for training
