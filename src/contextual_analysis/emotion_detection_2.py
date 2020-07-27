@@ -9,13 +9,13 @@ from keras.utils import to_categorical
 from sklearn.model_selection import train_test_split
 
 from constants import PROJ_DIR, EMOTION_ENCODER
-from sann.contextual_analysis.utils import create_dir_if_nonexist, \
+from src.contextual_analysis.utils import create_dir_if_nonexist, \
     create_embedding_matrix, create_vec_model, create_models_to_analyse
-from sann.neural_networks.cnn import cnn_01, cnn_02
-from sann.neural_networks.mlp import mlp_01
-from sann.neural_networks.rnn import rnn_01
-from sann.nlp.word2vec import W2V
-from sann.preprocessing.clean_data import clean_tweet
+from src.neural_networks.cnn import cnn_01, cnn_02
+from src.neural_networks.mlp import mlp_01
+from src.neural_networks.rnn import rnn_01
+from src.nlp.word2vec import W2V
+from src.preprocessing.clean_data import clean_tweet
 
 if __name__ == "__main__":
     print("Creating the Emotion Detection Models Using the Emotion "

@@ -8,7 +8,7 @@ from keras.models import load_model
 from keras.preprocessing.sequence import pad_sequences
 
 import constants as ct
-from sann.preprocessing.clean_data import clean_tweet
+from src.preprocessing.clean_data import clean_tweet
 
 # Fix for this error related to loading models:
 # "Failed to get convolution algorithm. This is probably because cuDNN failed

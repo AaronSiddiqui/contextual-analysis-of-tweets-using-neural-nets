@@ -3,7 +3,7 @@ from keras.layers import Dense, Conv1D, GlobalMaxPooling1D, Input, Activation, \
 from keras.layers import Embedding
 from keras.models import Model, Sequential
 
-from sann.neural_networks.train import train_nn
+from src.neural_networks.train import train_nn
 
 """Returns a basic 1D CNN with embedding"""
 

@@ -4,7 +4,7 @@ from keras.models import load_model
 from keras.preprocessing.sequence import pad_sequences
 
 from constants import PROJ_DIR, BINARY_SA_DECODER, EMOTION_DECODER
-from sann.preprocessing.clean_data import clean_tweet
+from src.preprocessing.clean_data import clean_tweet
 
 binary_sa_model = load_model(PROJ_DIR + "models/binary_sentiment_analysis/"
                                         "neural_networks/cnn/cnn_01_w2v_sg.h5")

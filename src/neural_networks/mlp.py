@@ -2,7 +2,7 @@ from keras.layers import Dense, Flatten
 from keras.layers.embeddings import Embedding
 from keras.models import Sequential
 
-from sann.neural_networks.train import train_nn
+from src.neural_networks.train import train_nn
 
 """Returns a basic MLP with embedding"""
 
