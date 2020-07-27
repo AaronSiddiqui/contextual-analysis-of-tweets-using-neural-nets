@@ -11,10 +11,10 @@ from constants import PROJ_DIR
 from src.contextual_analysis.utils import create_dir_if_nonexist, \
     create_embedding_matrix, create_vec_model, create_models_to_analyse
 from src.neural_networks.cnn import cnn_01, cnn_02
-# from sann.nlp.doc2vec import D2V
 from src.neural_networks.mlp import mlp_01
 from src.neural_networks.rnn import rnn_01
 from src.nlp.word2vec import W2V
+# from sann.nlp.doc2vec import D2V
 from src.preprocessing.clean_data import clean_tweet
 from src.preprocessing.reduce_data import find_feature_ratios, reduce_dataset
 
