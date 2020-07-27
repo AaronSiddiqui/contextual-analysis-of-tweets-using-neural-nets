@@ -1,7 +1,8 @@
+from os import makedirs, path
+
 import numpy as np
 from gensim.models import KeyedVectors
 from keras.models import load_model
-from os import makedirs, path
 
 """Creates a directory if it doesn't exist"""
 
@@ -96,5 +97,5 @@ def create_models_to_analyse(w2v_cbow_emb_matrix, w2v_sg_emb_matrix, nn_type,
                                     "trainable": True})
 
     # Returns them as tuples (model_type, model)
-    return (model_emb_type, model_emb), (model_w2v_cbow_type, model_w2v_cbow),\
+    return (model_emb_type, model_emb), (model_w2v_cbow_type, model_w2v_cbow), \
            (model_w2v_sg_type, model_w2v_sg)

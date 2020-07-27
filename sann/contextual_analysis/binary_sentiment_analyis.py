@@ -1,21 +1,22 @@
+import pickle
+from os import path
+
 import numpy as np
 import pandas as pd
-import pickle
-from constants import PROJ_DIR
-from keras.preprocessing.text import Tokenizer
 from keras.preprocessing.sequence import pad_sequences
-from os import path
-from sann.contextual_analysis.utils import create_dir_if_nonexist, \
-    create_embedding_matrix, create_vec_model, create_models_to_analyse
-from sann.nlp.word2vec import W2V
-# from sann.nlp.doc2vec import D2V
-from sann.neural_networks.mlp import mlp_01
-from sann.neural_networks.cnn import cnn_01, cnn_02
-from sann.neural_networks.rnn import rnn_01
-from sann.preprocessing.reduce_data import find_feature_ratios, reduce_dataset
-from sann.preprocessing.clean_data import clean_tweet
+from keras.preprocessing.text import Tokenizer
 from sklearn.model_selection import train_test_split
 
+from constants import PROJ_DIR
+from sann.contextual_analysis.utils import create_dir_if_nonexist, \
+    create_embedding_matrix, create_vec_model, create_models_to_analyse
+from sann.neural_networks.cnn import cnn_01, cnn_02
+# from sann.nlp.doc2vec import D2V
+from sann.neural_networks.mlp import mlp_01
+from sann.neural_networks.rnn import rnn_01
+from sann.nlp.word2vec import W2V
+from sann.preprocessing.clean_data import clean_tweet
+from sann.preprocessing.reduce_data import find_feature_ratios, reduce_dataset
 
 if __name__ == "__main__":
     print("Creating the Binary Sentiment Analysis Model Using the Sentiment 140 "

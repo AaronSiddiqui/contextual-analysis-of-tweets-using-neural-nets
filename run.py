@@ -1,11 +1,13 @@
-import constants as ct
-import numpy as np
 import pickle
+
+import numpy as np
 import tensorflow as tf
 import tweepy as tp
 from flask import Flask, render_template, request
 from keras.models import load_model
 from keras.preprocessing.sequence import pad_sequences
+
+import constants as ct
 from sann.preprocessing.clean_data import clean_tweet
 
 # Fix for this error related to loading models:
@@ -32,8 +34,8 @@ def load_models():
     global emotion_detection_model, emotion_detection_tokenizer
 
     emotion_detection_model = load_model(ct.PROJ_DIR +
-                                        "models/emotion_detection_2/"
-                                        "neural_networks/cnn/cnn_01_emb.h5")
+                                         "models/emotion_detection_2/"
+                                         "neural_networks/cnn/cnn_01_emb.h5")
 
     with open(ct.PROJ_DIR + "models/tokenizers/emotion_detection_2_tokenizer"
                             ".pickle", "rb") as handle:
@@ -106,8 +108,8 @@ def results():
         clean_tweets = [twt["clean_text"] for twt in tweets]
 
         binary_sa_results, num_sentiments = \
-             predict(clean_tweets, binary_sa_tokenizer, binary_sa_model,
-                     ct.BINARY_SA_DECODER, 2)
+            predict(clean_tweets, binary_sa_tokenizer, binary_sa_model,
+                    ct.BINARY_SA_DECODER, 2)
 
         emotion_detection_results, num_emotions = \
             predict(clean_tweets, emotion_detection_tokenizer,

@@ -28,10 +28,11 @@ def train_nn(model, model_path, x_train, y_train, x_val, y_val,
 
 """Custom callback to save validation loss and accuracy during training"""
 
+
 class SaveEvaluation(Callback):
     def __init__(self, test_data, path):
         self.test_data = test_data
-        self.path = path[:-3] + "_evaluation.txt"   # evaluation file
+        self.path = path[:-3] + "_evaluation.txt"  # evaluation file
 
     def on_epoch_end(self, epoch, logs={}):
         x, y = self.test_data

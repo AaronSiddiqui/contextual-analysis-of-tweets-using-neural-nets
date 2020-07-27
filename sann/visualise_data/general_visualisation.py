@@ -1,6 +1,9 @@
 import math
+
 import matplotlib.pyplot as plt
+
 from constants import PROJ_DIR
+
 
 def get_accuracies(file_path):
     accs = []
@@ -14,7 +17,7 @@ def get_accuracies(file_path):
 
 
 model_dir = PROJ_DIR + "models/binary_sentiment_analysis/neural_networks/"
-#model_dir = PROJ_DIR + "models/emotion_detection_2/neural_networks/"
+# model_dir = PROJ_DIR + "models/emotion_detection_2/neural_networks/"
 
 cnn_dir = model_dir + "cnn/"
 mlp_dir = model_dir + "mlp/"
@@ -43,7 +46,7 @@ plt.plot(epochs, cnn_01_emb_accs, label="CNN 01 with Basic Embedding", linewidth
 plt.plot(epochs, cnn_01_cbow_accs, label="CNN 01 with Word2Vec CBOW", linewidth=1)
 plt.plot(epochs, cnn_01_sg_accs, label="CNN 01 with Word2Vec SG", linewidth=1)
 plt.xlim([1, num_epochs])
-plt.xticks(range(math.floor(min(epochs)), math.ceil(max(epochs))+1))
+plt.xticks(range(math.floor(min(epochs)), math.ceil(max(epochs)) + 1))
 plt.xlabel("Number of Epochs Trained")
 plt.ylabel("Validation Accuracy (%)")
 plt.title("CNN 01 Embeddings for Binary Sentiment Analysis")

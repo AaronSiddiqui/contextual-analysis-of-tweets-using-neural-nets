@@ -1,18 +1,20 @@
 import pickle
-from constants import PROJ_DIR, BINARY_SA_DECODER, EMOTION_DECODER
+
 from keras.models import load_model
 from keras.preprocessing.sequence import pad_sequences
+
+from constants import PROJ_DIR, BINARY_SA_DECODER, EMOTION_DECODER
 from sann.preprocessing.clean_data import clean_tweet
 
 binary_sa_model = load_model(PROJ_DIR + "models/binary_sentiment_analysis/"
-                             "neural_networks/cnn/cnn_01_w2v_sg.h5")
+                                        "neural_networks/cnn/cnn_01_w2v_sg.h5")
 
-with open(PROJ_DIR + "models/tokenizers/binary_sa_tokenizer.pickle", "rb") as\
+with open(PROJ_DIR + "models/tokenizers/binary_sa_tokenizer.pickle", "rb") as \
         handle:
     binary_sa_tokenizer = pickle.load(handle)
 
 emotion_detection_model = load_model(PROJ_DIR + "models/emotion_detection_2/"
-                                     "neural_networks/cnn/cnn_01_emb.h5")
+                                                "neural_networks/cnn/cnn_01_emb.h5")
 
 with open(PROJ_DIR + "models/tokenizers/emotion_detection_2_tokenizer.pickle",
           "rb") as handle:

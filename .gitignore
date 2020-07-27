@@ -2,15 +2,15 @@
 .idea
 *__pycache__*
 
-# directory that stores the secret credentials
+# Directory that stores the secret credentials
 credentials/
 
-# reduced and cleaned datasets
+# Reduced and cleaned datasets
 *_reduced*
 *_clean*
 
-# directory that stores the completed models
+# Directory that stores the completed models
 models/
 
-# directory that stores the logs
+# Directory that stores the logs
 logs/

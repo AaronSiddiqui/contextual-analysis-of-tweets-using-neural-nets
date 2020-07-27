@@ -1,4 +1,5 @@
 import multiprocessing
+
 from gensim.models.doc2vec import Doc2Vec, TaggedDocument
 # Used to display a CLI progress bar
 from tqdm import tqdm

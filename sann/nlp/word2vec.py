@@ -1,4 +1,5 @@
 import multiprocessing
+
 import nltk
 from gensim.models import Word2Vec
 # Used to display a CLI progress bar

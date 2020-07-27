@@ -1,7 +1,8 @@
-from keras.layers import Dense, Conv1D, GlobalMaxPooling1D, Input, Activation,\
+from keras.layers import Dense, Conv1D, GlobalMaxPooling1D, Input, Activation, \
     concatenate
 from keras.layers import Embedding
 from keras.models import Model, Sequential
+
 from sann.neural_networks.train import train_nn
 
 """Returns a basic 1D CNN with embedding"""
@@ -16,7 +17,7 @@ def cnn_01(model_path, x_train, y_train, x_val, y_val, input_dim, output_dim,
     model.add(Conv1D(filters=128, kernel_size=kernel_size, padding="valid",
                      activation="relu", strides=1))
     model.add(GlobalMaxPooling1D())
-    model.add(Dense(output_dim*2, activation="relu"))
+    model.add(Dense(output_dim * 2, activation="relu"))
     model.add(Dense(num_output_classes, activation=final_act_func))
 
     return train_nn(model, model_path, x_train, y_train, x_val, y_val, loss)
@@ -48,7 +49,7 @@ def cnn_02(model_path, x_train, y_train, x_val, y_val, input_dim, output_dim,
     merged = concatenate([bigram_branch, trigram_branch, fourgram_branch],
                          axis=1)
 
-    merged = Dense(output_dim*2, activation="relu")(merged)
+    merged = Dense(output_dim * 2, activation="relu")(merged)
     merged = Dense(num_output_classes)(merged)
     output = Activation(final_act_func)(merged)
     model = Model(inputs=[tweet_input], outputs=[output])

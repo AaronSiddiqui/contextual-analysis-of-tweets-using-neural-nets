@@ -1,5 +1,6 @@
-import pandas as pd
 from math import isclose
+
+import pandas as pd
 
 """Finds and returns a dictionary of the ratios for the classes in a feature"""
 
@@ -11,7 +12,7 @@ def find_feature_ratios(df, feat):
     for cls in df[feat].unique().tolist():
         # ratio = occurrences of the class/total number of rows
         num = len(df.loc[df[feat] == cls])
-        ratios[cls] = num/total_rows
+        ratios[cls] = num / total_rows
 
     return ratios
 
