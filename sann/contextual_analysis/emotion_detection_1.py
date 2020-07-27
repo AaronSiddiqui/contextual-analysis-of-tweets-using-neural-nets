@@ -6,7 +6,7 @@ from keras.preprocessing.text import Tokenizer
 from keras.preprocessing.sequence import pad_sequences
 from keras.utils import to_categorical
 from os import path
-from sann.sentiment_analysis_models.utils import create_dir_if_nonexist, \
+from sann.contextual_analysis.utils import create_dir_if_nonexist, \
     create_embedding_matrix, create_vec_model, create_models_to_analyse
 from sann.nlp.word2vec import W2V
 from sann.neural_networks.mlp import mlp_01
